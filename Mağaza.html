@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>BANPAN Gaming Web OS & Kurulum</title>
+    
+    <!-- HTA UYGULAMA KİMLİĞİ (WİNDOWS İÇİN) -->
+    <HTA:APPLICATION 
+        ID="BanpanWebOS" 
+        APPLICATIONNAME="BANPAN Gaming Web OS" 
+        BORDER="thin" 
+        INNERBORDER="no" 
+        CAPTION="yes" 
+        SHOWINTASKBAR="yes" 
+        SINGLEINSTANCE="yes" 
+        SYSMENU="yes" 
+        WINDOWSTATE="maximize" 
+        SCROLL="no" />
+
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --primary-color: #6200ee;
+            --secondary-color: #03dac6;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* OS / Store Colors */
+            --os-bg: #111111;
+            --os-sidebar: #0a0a0a;
+            --os-text: #ffffff;
+            --os-accent: #0078D7;
+            --os-card-bg: #1e1e1e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* IE Scrollbar Fix */
+        body, .step, .os-content-area, .cmd-terminal {
+            scrollbar-face-color: #333; scrollbar-track-color: #111;
+            scrollbar-arrow-color: #0078D7;
+        }
+
+        /* --- KURULUM EKRANI STİLLERİ --- */
+        #setup-wrapper {
+            width: 100%; height: 100%; display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        .setup-container {
+            width: 100%; max-width: 850px; height: 85vh;
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            overflow: hidden; position: relative;
+        }
+
+        .step {
+            display: none; padding: 30px; flex-grow: 1;
+            overflow-y: auto; opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .step.active { display: block; opacity: 1; transform: translateX(0); }
+        .step.fade-out { opacity: 0; transform: translateX(-50px); }
+
+        h2 { margin-bottom: 20px; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; outline:none; }
+        
+        button {
+            background-color: var(--primary-color); color: white; border: none; 
+            cursor: pointer; font-weight: bold; transition: background 0.3s; 
+            margin-top: 10px; padding: 10px; border-radius: 6px; width: 100%;
+        }
+        button:hover { background-color: #3700b3; }
+        button:disabled { background-color: #888; cursor: not-allowed; }
+
+        .btn-group { display: flex; gap: 10px; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; }
+        .cmd-terminal { background: #000; color: #0f0; font-family: Consolas, monospace; padding: 15px; height: 200px; overflow-y: auto; border-radius: 5px; }
+        .cmd-input { background: transparent; border: none; color: #0f0; width: 80%; outline: none; }
+        
+        .app-card-setup { border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; background: #fafafa; }
+
+        .driver-box { background: #f4f4f4; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .driver-list { list-style: none; margin-bottom: 10px; font-size: 14px; color: #555; max-height: 100px; overflow-y: auto; }
+        .driver-list li { margin-bottom: 5px; }
+        .progress-bar-container { width: 100%; background: #ccc; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
+        .progress-bar-fill { width: 0%; height: 100%; background: var(--primary-color); transition: width 0.3s; }
+
+        /* Toast */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; 
+            border-radius: 4px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; 
+            margin-left: -125px; font-weight: bold; border: 1px solid #555;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* Dark Mode for Setup */
+        body.dark-mode { --bg-color: #121212; --text-color: #e0e0e0; }
+        body.dark-mode .setup-container { background: #1e1e1e; }
+        body.dark-mode .btn-group { background: #2c2c2c; border-color: #444; }
+        body.dark-mode input, body.dark-mode select { background: #333; color: #fff; border: 1px solid #555; }
+        body.dark-mode .app-card-setup, body.dark-mode .driver-box { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .driver-list { color: #aaa; }
+
+
+        /* --- OS & MAĞAZA EKRANI STİLLERİ --- */
+        #main-os-container {
+            display: none; width: 100vw; height: 100vh;
+            background-color: var(--os-bg); color: var(--os-text);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        .os-sidebar {
+            width: 260px; background-color: var(--os-sidebar);
+            display: block; float: left; height: 100%;
+            padding: 20px 0; border-right: 1px solid #333;
+        }
+
+        .os-sidebar h1 {
+            font-size: 20px; padding: 0 20px 20px 20px; margin-bottom: 20px;
+            border-bottom: 1px solid #333; color: #00f2fe; text-align:center;
+        }
+
+        .os-nav-item {
+            padding: 15px 20px; cursor: pointer; font-size: 15px; font-weight: bold;
+            transition: background 0.2s; border-left: 4px solid transparent;
+        }
+        .os-nav-item:hover { background-color: #1e1e1e; }
+        .os-nav-item.active { background-color: #2a2a2a; border-left: 4px solid var(--os-accent); color: #00f2fe; }
+
+        .os-content-area {
+            width: calc(100% - 260px); float: left; height: 100%;
+            padding: 30px; overflow-y: auto; background: var(--os-bg);
+        }
+
+        .os-view { display: none; animation: fadeInView 0.4s ease; }
+        .os-view.active { display: block; }
+        @keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Store Elements */
+        .hero-banner {
+            width: 100%; height: 220px; border-radius: 12px; margin-bottom: 30px;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            display: flex; align-items: flex-end; padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative;
+        }
+        .hero-title { font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); color:#fff; }
+
+        .section-title { font-size: 22px; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; color:#fff; }
+
+        /* HTA/IE11 Uyumlu Flex Grid */
+        .os-store-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+
+        .os-app-card {
+            background-color: var(--os-card-bg); width: 220px; border-radius: 10px;
+            padding: 20px; cursor: pointer; border: 1px solid #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .os-app-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 120, 215, 0.3); border-color: var(--os-accent); }
+        .app-icon { font-size: 40px; margin-bottom: 15px; text-align: center; }
+        .app-name { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 5px; color:#fff;}
+        .app-dev { font-size: 12px; color: #aaa; text-align: center; }
+
+        /* App Details */
+        .app-detail-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
+        .app-detail-icon { font-size: 80px; }
+        .app-detail-title { font-size: 32px; margin-bottom: 10px; color:#fff;}
+        .app-detail-action button { width: auto; padding: 12px 30px; font-size: 16px; background-color: var(--os-accent); margin:0;}
+        .back-btn { background: #333; width: auto; padding: 10px 20px; margin-bottom: 20px; display: inline-block; }
+        .back-btn:hover { background: #444; }
+
+        /* Ayarlar ve Hakkında Kartları */
+        .settings-card { background: var(--os-card-bg); padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--os-accent); color:#ccc;}
+        .settings-card h3 { color:#fff; margin-bottom:10px; border-bottom:none; padding-bottom:0;}
+        
+        .about-row { display: flex; border-bottom: 1px solid #333; padding: 12px 0; }
+        .about-label { width: 150px; font-weight: bold; color: #888; }
+        .about-value { color: #fff; font-weight:bold; }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- BÖLÜM 1: KURULUM EKRANI                    -->
+    <!-- ========================================== -->
+    <div id="setup-wrapper">
+        <div class="setup-container">
+            
+            <div class="step active" id="step-1">
+                <h2>BANPAN Gaming Web Mağazası & OS</h2>
+                <p>Web Mağazası ve İşletim Sistemi arayüzü başlatılıyor.</p>
+                <p style="margin-top: 20px;">Lütfen devam etmek için "İleri" butonuna tıklayın.</p>
+            </div>
+
+            <div class="step" id="step-2">
+                <h2>2. Ülke ve Bölge Ayarları</h2>
+                <div class="form-group">
+                    <label>Ülke Seçin:</label>
+                    <select id="country" onchange="updateCities()">
+                        <option value="tr">Türkiye</option>
+                        <option value="us">Amerika Birleşik Devletleri</option>
+                        <option value="de">Almanya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Bölge:</label>
+                    <select id="city"></select>
+                </div>
+            </div>
+
+            <div class="step" id="step-3">
+                <h2>3. Sistem İzinleri</h2>
+                <p>Uygulamanın Windows çekirdeğinde çalışabilmesi için yetkileri onaylayın.</p>
+                <button type="button" onclick="document.getElementById('notif-status').innerText = 'Yetkiler başarıyla tanımlandı.'">Sistem Erişimini Onayla</button>
+                <p id="notif-status" style="margin-top: 10px; color: green; font-weight:bold;"></p>
+            </div>
+
+            <div class="step" id="step-4">
+                <h2>4. İstemci Bağlantısı</h2>
+                <div class="form-group">
+                    <label>Bağlantı Portu ve Sunucu Seçimi:</label>
+                    <select id="server-port">
+                        <option value="kayseri">193.XXX.196.XXX.1:7777 - Kayseri</option>
+                        <option value="nevsehir">193.XXX.196.XXX.1:7777 - Nevşehir</option>
+                        <option value="lapseki">193.XXX.196.XXX.1:7777 - Çanakkale Lapseki</option>
+                        <option value="ana_makina">193.457.858.1:7777 - Ana Makine Sunucusu</option>
+                    </select>
+                </div>
+                <p><small>Bu ayar yalnızca çok zor durumda değiştirilmelidir.</small></p>
+            </div>
+
+            <div class="step" id="step-5">
+                <h2>5. Donanım ve Sürücü Ayarları</h2>
+                <div class="form-group">
+                    <label>Dil:</label>
+                    <select id="lang"><option>Türkçe</option><option>English</option></select>
+                </div>
+                <hr style="margin: 15px 0;">
+                <p style="color: red; font-weight: bold;">Zorunlu Kurulum Dosyaları (8 Sürücü):</p>
+                
+                <div class="driver-box">
+                    <div class="progress-bar-container"><div id="driver-progress" class="progress-bar-fill"></div></div>
+                    <ul class="driver-list" id="driver-list-ul"></ul>
+                    <button type="button" id="driver-install-btn" onclick="install8Drivers()">Windows Sistem Sürücülerini Kur</button>
+                </div>
+            </div>
+
+            <div class="step" id="step-6">
+                <h2>6. Oturum ve CMD İstemi</h2>
+                <div class="form-group">
+                    <label>Kullanıcı Adı:</label>
+                    <input type="text" id="username" placeholder="Kullanıcı adınızı girin">
+                </div>
+                <p>Gelişmiş Seçenekler Komut İstemi (CMD):</p>
+                <div class="cmd-terminal" onclick="document.getElementById('cmd-input').focus()">
+                    <div id="cmd-output">BANPAN System [Version 1.12.6]<br>(c) BANPAN Gaming. Tüm hakları saklıdır.<br><br>W:\SYS.WİN.X64> </div>
+                    <span style="display: flex;">W:\SYS.WİN.X64> <input type="text" class="cmd-input" id="cmd-input" onkeypress="handleCMD(event)"></span>
+                </div>
+            </div>
+
+            <div class="step" id="step-7">
+                <h2>7. Kişiselleştirme</h2>
+                <div class="form-group">
+                    <label>Kurulum Arka Plan Teması:</label>
+                    <select id="theme" onchange="changeTheme()">
+                        <option value="light">Açık Tema (Light)</option>
+                        <option value="dark">Koyu Tema (Dark)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="step" id="step-8">
+                <h2>8. Veri Belleği Yapılandırması</h2>
+                <p>Sistem verileri kayıt defterine ve belleğe işlenecektir.</p>
+                <button type="button" onclick="saveToLocalStorage()">Verileri Şimdi Belleğe Yaz</button>
+                <p id="memory-status" style="margin-top:10px; color:blue;"></p>
+            </div>
+
+            <div class="step" id="step-9">
+                <h2>9. Kurulum Tamamlandı</h2>
+                <p>Sistem yapılandırması bitti. BANPAN Web Mağazası ve İşletim Sistemi arayüzüne geçiş yapabilirsiniz.</p>
+                <hr style="margin: 20px 0;">
+                <div style="text-align: center;">
+                    <h3 style="color: green; margin-bottom: 20px;">SİSTEM HAZIR</h3>
+                    <button type="button" onclick="launchOS()" style="background-color: #0078D7; font-size: 18px; padding: 15px; border-radius: 8px;">
+                        🚀 SİSTEMİ BAŞLAT (MAĞAZAYA GEÇ)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigasyon Butonları -->
+            <div class="btn-group">
+                <button type="button" id="prevBtn" onclick="nextPrev(-1)" style="background-color: #555; display: none;">Geri</button>
+                <button type="button" id="nextBtn" onclick="nextPrev(1)">İleri</button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- BÖLÜM 2: BANPAN OS & MAĞAZA ARAYÜZÜ        -->
+    <!-- ========================================== -->
+    <div id="main-os-container">
+        
+        <!-- Sol Menü -->
+        <div class="os-sidebar">
+            <h1>BANPAN OS Store</h1>
+            <div class="os-nav-item active" onclick="switchOsView('view-store', this)">🛒 Mağaza Ana Ekranı</div>
+            <div class="os-nav-item" onclick="switchOsView('view-updates', this)">🔄 Güncellemeler</div>
+            <div class="os-nav-item" onclick="switchOsView('view-advanced', this)">⚙️ Gelişmiş Seçenekler</div>
+            <div class="os-nav-item" onclick="switchOsView('view-dev', this)">👨‍💻 Geliştirici Yükleme</div>
+            <div class="os-nav-item" onclick="switchOsView('view-about', this)" style="border-top:1px solid #333; margin-top:20px;">ℹ️ Hakkında & Bilgi</div>
+        </div>
+
+        <!-- İçerik Alanı -->
+        <div class="os-content-area">
+            
+            <!-- MAĞAZA VİTRİNİ -->
+            <div id="view-store" class="os-view active">
+                <div class="hero-banner">
+                    <div class="hero-title">BANPAN Uygulama Ekosistemine Hoş Geldiniz</div>
+                </div>
+
+                <div class="section-title">Öne Çıkan Sistem & Sürücü Uygulamaları</div>
+                
+                <div class="os-store-grid" id="os-store-grid">
+                    
+                    <!-- GPU UYGULAMASI (GERÇEK İNDİRİLEBİLİR PROGRAM) -->
+                    <div class="os-app-card" style="border-color:#66fcf1; box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);" 
+                         onclick="openAppDetail('gpu_app', '⚡ BANPAN Rays Mation (GPU)', 'BANPAN SoftWare', 'Sistem çekirdeğine inerek İşlemci ve Ekran Kartı frekanslarını yönetmenizi sağlayan PRO sürüm kontrol panelidir.')">
+                        <div class="app-icon">⚡</div>
+                        <div class="app-name">BANPAN Rays Mation Pro</div>
+                        <div class="app-dev" style="color:#66fcf1;">BANPAN SoftWare</div>
+                    </div>
+
+                    <div class="os-app-card" onclick="openAppDetail('app2', '🎮 BANPAN Oyun Hizmetleri', 'BANPAN Gaming INC', 'Windows oyun hizmetleri sürücüsü.')">
+                        <div class="app-icon">🎮</div>
+                        <div class="app-name">Oyun Hizmetleri</div>
+                        <div class="app-dev">BANPAN Gaming INC</div>
+                    </div>
+
+                    <div class="os-app-card" onclick="openAppDetail('app3', '🎵 Ses Motoru Sürücüleri', 'SoundTech', 'Kulaklık ve donanım ses sürücüleri çalıştırma hizmetleri')">
+                        <div class="app-icon">🎵</div>
+                        <div class="app-name">Ses Motoru Sürücüleri</div>
+                        <div class="app-dev">SoundTech</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- UYGULAMA İÇİ DETAY EKRANI -->
+            <div id="view-app-detail" class="os-view">
+                <button class="back-btn" onclick="switchOsView('view-store', document.querySelectorAll('.os-nav-item')[0])">⬅ Mağazaya Dön</button>
+                
+                <div class="app-detail-header">
+                    <div class="app-detail-icon" id="detail-icon">📱</div>
+                    <div>
+                        <div class="app-detail-title" id="detail-title">Uygulama Adı</div>
+                        <div style="color:#00f2fe; margin-bottom: 15px; font-weight:bold;" id="detail-dev">Geliştirici</div>
+                        <div class="app-detail-action" id="detail-action-container">
+                            <!-- JS ile buton içeriği değişecek -->
+                            <button type="button" id="btn-download-app">İndir ve Başlat</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Uygulama Hakkında</div>
+                <p id="detail-desc" style="line-height: 1.6; color: #ccc;">Açıklama</p>
+            </div>
+
+            <!-- HAKKINDA VE SİSTEM BİLGİSİ (YENİ EKLENEN) -->
+            <div id="view-about" class="os-view">
+                <div class="section-title">ℹ️ Yazılım Hakkında ve Geliştirici Bilgileri</div>
+                
+                <div class="settings-card" style="border-left-color: #00f2fe; background:#1a1a1a;">
+                    <div style="text-align:center; margin-bottom:30px;">
+                        <h2 style="color:#00f2fe; border:none; margin:0;">BANPAN OS & STORE</h2>
+                        <p style="color:#888;">Gelişmiş Sistem Arayüzü</p>
+                    </div>
+
+                    <div class="about-row">
+                        <div class="about-label">Sürüm:</div>
+                        <div class="about-value">9.5.4 PRO EDITION</div>
+                    </div>
+                    <div class="about-row">
+                        <div class="about-label">Yapan Firma:</div>
+                        <div class="about-value">BANPAN Gaming INC.</div>
+                    </div>
+                    <div class="about-row">
+                        <div class="about-label">İmzalama:</div>
+                        <div class="about-value" style="color:#00ff88;">✔ BANPAN SoftWare (Doğrulanmış Yayıncı)</div>
+                    </div>
+                    <div class="about-row">
+                        <div class="about-label">Dosya Formatı:</div>
+                        <div class="about-value">.HTA (HTML Application / Yerel Windows Çekirdeği)</div>
+                    </div>
+                    <div class="about-row" style="border-bottom:none; flex-direction:column; align-items:flex-start;">
+                        <div class="about-label" style="margin-bottom:10px;">Hakkında:</div>
+                        <div class="about-value" style="color:#ccc; font-weight:normal; line-height:1.6;">
+                            Bu yazılım, Windows ortamında bağımsız bir işletim sistemi arayüzü ve uygulama mağazası sağlamak amacıyla BANPAN SoftWare tarafından geliştirilmiştir. <br><br>
+                            Sistem, bilgisayarınızın GPU, CPU ve Ağ soketlerine doğrudan müdahale edebilen Rays Mation teknolojisini destekler. Uygulama içerisinden indirilen tüm `.hta` tabanlı sürücüler ana makineye güvenli bir şekilde entegre edilir.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DİĞER MENÜLER (Kısaltılmış) -->
+            <div id="view-updates" class="os-view">
+                <div class="section-title">Sistem Güncellemeleri</div>
+                <div class="settings-card">Sisteminiz güncel. (Sürüm 9.5.4)</div>
+            </div>
+
+            <div id="view-advanced" class="os-view">
+                <div class="section-title">Gelişmiş Seçenekler</div>
+                <div class="settings-card">
+                    <h3>Ağ Yapılandırması</h3>
+                    <p>Mevcut Port: <span id="display-port" style="color:#00f2fe;">Bilinmiyor</span></p>
+                </div>
+            </div>
+
+            <div id="view-dev" class="os-view">
+                <div class="section-title">Geliştirici Dosya Yükleme Servisi</div>
+                <div class="settings-card">
+                    <p style="margin-bottom:15px;">Kendi HTML/HTA modüllerinizi mağazaya ekleyin.</p>
+                    <input type="file" id="dev-file" style="background:#222; color:#fff; border:1px solid #444;">
+                    <button type="button" onclick="showToast('Yerel modül mağazaya eklendi!', 'success')" style="width:auto;">Mağazaya Yükle</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast">Bildirim Mesajı</div>
+
+    <script>
+        // --- KURULUM EKRANI KODLARI ---
+        let currentStep = 0;
+        const steps = document.getElementsByClassName("step");
+        const cityData = { tr: ["İstanbul", "Ankara", "İzmir", "Bayburt", "Kayseri"], us: ["New York", "Los Angeles"], de: ["Berlin", "Münih"] };
+
+        function updateCities() {
+            const country = document.getElementById("country").value;
+            const citySelect = document.getElementById("city");
+            citySelect.innerHTML = "";
+            cityData[country].forEach(city => { 
+                let opt = document.createElement("option"); 
+                opt.value = city.toLowerCase(); opt.textContent = city; 
+                citySelect.appendChild(opt); 
+            });
+        }
+        updateCities();
+
+        function nextPrev(n) {
+            steps[currentStep].classList.add("fade-out");
+            setTimeout(() => {
+                steps[currentStep].classList.remove("active");
+                steps[currentStep].classList.remove("fade-out");
+                currentStep = currentStep + n;
+                
+                if (currentStep >= steps.length) { currentStep = steps.length - 1; return false; }
+                
+                steps[currentStep].classList.add("active");
+                document.getElementById("prevBtn").style.display = currentStep === 0 ? "none" : "block";
+                document.getElementById("nextBtn").style.display = currentStep === (steps.length - 1) ? "none" : "block";
+            }, 300);
+        }
+
+        const driversList = [
+            "banpan_core_kernel.sys", "display_graphics_engine.sys", "audio_fx_processor.sys", 
+            "net_socket_adapter.sys", "input_mouse_kb.sys", "crypto_security_key.sys", 
+            "storage_mem_mgr.sys", "ai_module_x64.sys"
+        ];
+        
+        function install8Drivers() {
+            const btn = document.getElementById('driver-install-btn');
+            const ul = document.getElementById('driver-list-ul');
+            const progress = document.getElementById('driver-progress');
+            btn.disabled = true; ul.innerHTML = "";
+            let loaded = 0;
+
+            driversList.forEach((dr, index) => {
+                let li = document.createElement("li");
+                li.id = "drv-" + index; li.innerText = "⏳ " + dr + " kuruluyor...";
+                ul.appendChild(li);
+            });
+
+            let interval = setInterval(() => {
+                if(loaded < driversList.length) {
+                    let li = document.getElementById("drv-" + loaded);
+                    li.innerText = "✅ " + driversList[loaded] + " kuruldu.";
+                    li.style.color = "green";
+                    loaded++;
+                    progress.style.width = ((loaded / driversList.length) * 100) + "%";
+                } else {
+                    clearInterval(interval);
+                    btn.innerText = "Sürücüler Kuruldu"; btn.style.backgroundColor = "green";
+                    showToast("Sürücüler sisteme entegre edildi.", "success");
+                }
+            }, 300);
+        }
+
+        function handleCMD(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                const input = document.getElementById("cmd-input");
+                const output = document.getElementById("cmd-output");
+                output.innerHTML += input.value + "<br>Komut işlendi.<br><br>W:\\SYS.WİN.X64> ";
+                input.value = "";
+                output.parentElement.scrollTop = output.parentElement.scrollHeight;
+            }
+        }
+
+        function changeTheme() {
+            if (document.getElementById("theme").value === "dark") document.body.classList.add("dark-mode");
+            else document.body.classList.remove("dark-mode");
+        }
+
+        function saveToLocalStorage() {
+            document.getElementById("memory-status").innerText = "Veriler kayıt defterine işlendi.";
+            showToast("Veriler Kaydedildi", "success");
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById("toast"); toast.innerText = msg;
+            toast.style.borderColor = type === 'error' ? '#f44336' : '#00f2fe';
+            toast.className = "show"; 
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function launchOS() {
+            const portSelect = document.getElementById("server-port");
+            document.getElementById("display-port").innerText = portSelect.options[portSelect.selectedIndex].text;
+
+            document.getElementById("setup-wrapper").style.display = "none";
+            document.getElementById("main-os-container").style.display = "block";
+            document.body.style.backgroundColor = "#000"; 
+            showToast("BANPAN OS Başlatıldı.", "success");
+        }
+
+        // --- OS & MAĞAZA MANTIĞI ---
+        function switchOsView(viewId, navElement) {
+            document.querySelectorAll('.os-nav-item').forEach(el => el.classList.remove('active'));
+            if(navElement) navElement.classList.add('active');
+
+            document.querySelectorAll('.os-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function openAppDetail(appId, name, dev, desc) {
+            const icon = name.split(" ")[0]; 
+            const pureName = name.substring(name.indexOf(" ") + 1);
+
+            document.getElementById("detail-icon").innerText = icon;
+            document.getElementById("detail-title").innerText = pureName;
+            document.getElementById("detail-dev").innerText = dev;
+            document.getElementById("detail-desc").innerText = desc;
+
+            const actionContainer = document.getElementById("detail-action-container");
+            
+            // Eğer açılan uygulama bizim GPU programımız ise, gerçek HTA indirme ve başlatma fonksiyonunu ekle
+            if(appId === 'gpu_app') {
+                actionContainer.innerHTML = `<button type="button" onclick="downloadAndRunGPU()" style="background:#00f2fe; color:#000; font-weight:bold; box-shadow:0 0 15px rgba(0,242,254,0.4);">⬇ Uygulamayı İndir ve Sistemde Başlat</button>`;
+            } else {
+                actionContainer.innerHTML = `<button type="button" onclick="showToast('Uygulama belleğe alınıyor...', 'success')">İndir ve Başlat (Simülasyon)</button>`;
+            }
+
+            switchOsView('view-app-detail', null);
+            document.querySelectorAll('.os-nav-item').forEach(el => el.classList.remove('active'));
+        }
+
+        // MAĞAZADAN UYGULAMA İNDİRME VE ÇALIŞTIRMA MOTORU (FSO & WScript.Shell)
+        function downloadAndRunGPU() {
+            try {
+                showToast("Dosyalar ayrıştırılıyor... Lütfen bekleyin.", "success");
+                
+                var WshShell = new ActiveXObject("WScript.Shell");
+                var fso = new ActiveXObject("Scripting.FileSystemObject");
+                
+                // Temp klasörüne gerçek HTA dosyasını oluştur
+                var tempFolder = WshShell.ExpandEnvironmentStrings("%TEMP%");
+                var targetHta = tempFolder + "\\BanpanRaysMationPro.hta";
+                
+                // Eğer daha önce varsa sil
+                if (fso.FileExists(targetHta)) fso.DeleteFile(targetHta);
+                
+                // GPU Panelinin Kodları (Önceki yazdığımız panelin minimize edilmiş iskeleti)
+                var gpuCode = [
+                    "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>",
+                    "<title>BANPAN RAYS MATION - GPU KONTROL</title>",
+                    "<HTA:APPLICATION ID='BanpanGPU' APPLICATIONNAME='BanpanGPU' BORDER='dialog' INNERBORDER='no' CAPTION='yes' SHOWINTASKBAR='yes' SINGLEINSTANCE='yes' SYSMENU='yes' WINDOWSTATE='normal' SCROLL='no'/>",
+                    "<style>",
+                    "body{background:#0b0c10;color:#c5c6c7;font-family:sans-serif;padding:30px;overflow:hidden;}",
+                    "h2{color:#66fcf1; border-bottom:1px solid #1f2833; padding-bottom:10px;}",
+                    ".card{background:#111; border:1px solid #1f2833; padding:20px; border-radius:8px; margin-bottom:15px; border-left:4px solid #66fcf1;}",
+                    "button{background:#45a29e; color:#000; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; width:100%; margin-top:10px; border-radius:4px;}",
+                    "button:hover{background:#66fcf1;}",
+                    "</style></head><body>",
+                    "<h2>⚡ BANPAN PRO - GPU & CPU KONTROL MERKEZİ</h2>",
+                    "<div class='card'>",
+                    "<h3>Sistem Donanımları Başarıyla Enjekte Edildi!</h3>",
+                    "<p style='color:#aaa; font-size:14px; margin-top:10px;'>Mağazadan indirilen bu modül ana işletim sisteminizde aktif olarak çalışmaktadır. Çekirdek hızları, fan ayarları ve ağ gecikmeleri artık BANPAN kontrolünde.</p>",
+                    "</div>",
+                    "<div class='card'>",
+                    "<label><input type='checkbox' checked> Turbo Boost Kilidini Kaldır</label><br><br>",
+                    "<label><input type='checkbox' checked> Agresif Soğutma Modu (65°C)</label>",
+                    "</div>",
+                    "<button onclick='alert(\"Değerler WMI üzerinden Kernel düzeyinde uygulandı.\")'>Ayarları Uygula</button>",
+                    "<button onclick='window.close()' style='background:transparent; color:#ff4c4c; border:1px solid #ff4c4c;'>Paneli Kapat</button>",
+                    "<script>window.resizeTo(600, 550); window.moveTo((screen.availWidth-600)/2, (screen.availHeight-550)/2);<\/script>",
+                    "</body></html>"
+                ].join("\n");
+
+                // Dosyayı diske yaz
+                var file = fso.CreateTextFile(targetHta, true);
+                file.Write(gpuCode);
+                file.Close();
+
+                // Dosyayı çalıştır (Yeni pencere olarak açılır)
+                WshShell.Run('mshta.exe "' + targetHta + '"');
+                
+                showToast("BANPAN Rays Mation başarıyla indirildi ve başlatıldı!", "success");
+
+            } catch(e) {
+                alert("Kurulum hatası: Güvenlik izinleri (ActiveX) tarayıcınız/sisteminiz tarafından engellenmiş olabilir.\nDetay: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
