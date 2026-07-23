@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANPAN GAMING | Republic of Software</title>
+    <title>DEV-CORE | Republic of Software</title>
     
     <!-- F12, SAĞ TIK & CTRL+U ENGELLEYİCİ -->
     <script>
@@ -19,7 +19,7 @@
         :root {
             --bg-dark: #0a0a0c;
             --bg-panel: #121216;
-            --main-color: #ff003c;
+            --main-color: #00ffcc; /* Developer temasına uygun Hacker Yeşili/Mavisi yapıldı */
             --border-radius: 0px;
             --text-main: #f0f0f5;
             --text-muted: #888899;
@@ -35,6 +35,7 @@
             --text-main: #121216;
             --text-muted: #555566;
             --border: #cccccc;
+            --main-color: #0088ff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,24 +45,33 @@
             color: var(--text-main);
             font-family: var(--main-font);
             overflow-x: hidden;
-            background-image: linear-gradient(rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.9)), repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(var(--main-color), 0.03) 10px, rgba(var(--main-color), 0.03) 20px);
+            background-image: linear-gradient(rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.9)), repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 255, 204, 0.03) 10px, rgba(0, 255, 204, 0.03) 20px);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             transition: background-color 0.4s ease, color 0.4s ease;
             position: relative;
+            /* SÜREKLİ HAREKET EDEN ARKA PLAN (Kural 8) */
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* ARKA PLAN ANİMASYONU (AYARLARDAN KONTROL EDİLEBİLİR) */
         body::after {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(var(--main-color), 0.05) 51%, transparent 51%);
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 204, 0.05) 51%, transparent 51%);
             background-size: 100% 4px; pointer-events: none; z-index: 1;
             animation: scanline var(--anim-speed) linear infinite;
         }
         @keyframes scanline { 0% { background-position: 0 0; } 100% { background-position: 0 100vh; } }
         body.light-theme::after { display: none; }
-        body.light-theme { background-image: none; }
+        body.light-theme { background-image: none; animation: none; }
 
         h1, h2, h3, .brand-logo { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
 
@@ -84,7 +94,7 @@
         .form-control:focus { border-color: var(--main-color); box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         select.form-control option { background: var(--bg-panel); color: var(--text-main); }
         
-        .btn-gamer { background: var(--main-color); color: white; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: 700; font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase; transition: all 0.3s; border-radius: var(--border-radius); }
+        .btn-gamer { background: var(--main-color); color: #000; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: 700; font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase; transition: all 0.3s; border-radius: var(--border-radius); }
         .btn-gamer:hover { filter: brightness(1.2); box-shadow: 0 0 20px var(--main-color); transform: translateY(-2px); }
 
         .divider { text-align: center; margin: 25px 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; position: relative; }
@@ -98,22 +108,43 @@
         body.light-theme header { box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .nav-container { max-width: 1400px; margin: 0 auto; height: 80px; display: flex; align-items: center; justify-content: space-between; }
         
-        .menu-btn { font-size: 30px; cursor: pointer; color: var(--text-main); transition: color 0.3s; user-select: none; font-family: 'Orbitron', sans-serif; font-weight: 700; }
+        .menu-btn { font-size: 30px; cursor: pointer; color: var(--text-main); transition: color 0.3s; user-select: none; font-family: 'Orbitron', sans-serif; font-weight: 700; z-index: 10001; position: relative;}
         .menu-btn:hover { color: var(--main-color); text-shadow: 0 0 10px var(--main-color); }
         
-        /* ÇİFT YÖNLÜ KAYAR MENÜLER (SOL VE SAĞ) */
-        .sidebar { position: fixed; top: 80px; width: 300px; height: calc(100vh - 80px); background: var(--bg-panel); transition: all 0.4s ease; z-index: 999; padding: 30px; overflow-y: auto; }
+        /* KURAL 2: 4 YÖNLÜ (ÜST, ALT, SAĞ, SOL) BİRLEŞEN MENÜ YAPISI */
+        .overlay-menu-wrapper {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 1000; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
         
-        #sidebar-left { left: -350px; border-right: 2px solid var(--main-color); box-shadow: 5px 0 20px rgba(0,0,0,0.8); }
-        #sidebar-left.open { left: 0; }
-        body.light-theme #sidebar-left { box-shadow: 5px 0 20px rgba(0,0,0,0.1); }
+        .menu-panel { position: absolute; background: rgba(18, 18, 22, 0.95); backdrop-filter: blur(10px); transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1); border: 2px solid var(--main-color); box-shadow: 0 0 30px rgba(0, 255, 204, 0.2); }
+        
+        /* Panellerin Başlangıç Pozisyonları (Dışarıda) */
+        #panel-top { top: -50vh; left: 0; width: 100vw; height: 50vh; border-bottom-width: 2px; }
+        #panel-bottom { bottom: -50vh; left: 0; width: 100vw; height: 50vh; border-top-width: 2px; }
+        #panel-left { top: 0; left: -50vw; width: 50vw; height: 100vh; border-right-width: 2px; }
+        #panel-right { top: 0; right: -50vw; width: 50vw; height: 100vh; border-left-width: 2px; }
 
-        #sidebar-right { right: -350px; border-left: 2px solid var(--main-color); box-shadow: -5px 0 20px rgba(0,0,0,0.8); }
-        #sidebar-right.open { right: 0; }
-        body.light-theme #sidebar-right { box-shadow: -5px 0 20px rgba(0,0,0,0.1); }
+        /* Panellerin Açılmış Halleri (Birleşme) */
+        .overlay-menu-wrapper.open { pointer-events: auto; }
+        .overlay-menu-wrapper.open #panel-top { top: 0; }
+        .overlay-menu-wrapper.open #panel-bottom { bottom: 0; }
+        .overlay-menu-wrapper.open #panel-left { left: 0; }
+        .overlay-menu-wrapper.open #panel-right { right: 0; }
 
-        .sidebar-link { display: block; color: var(--text-muted); font-size: 18px; font-weight: 600; text-transform: uppercase; text-decoration: none; padding: 15px 0; border-bottom: 1px solid var(--border); transition: all 0.3s; cursor: pointer; }
-        .sidebar-link:hover, .sidebar-link.active { color: var(--main-color); padding-left: 15px; }
+        /* İçeriklerin Düzeni */
+        .menu-content {
+            position: absolute; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; transition-delay: 0s; pointer-events: none; z-index: 1001; gap: 100px;
+        }
+        .overlay-menu-wrapper.open .menu-content { opacity: 1; transition-delay: 0.4s; pointer-events: auto; }
+
+        .menu-column { display: flex; flex-direction: column; gap: 20px; }
+        .menu-column h3 { color: var(--main-color); margin-bottom: 20px; font-size: 24px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
+
+        /* Eski Sidebar Sınıfları Uyumluluk İçin Gizli Tutuldu (Silmeme Kuralı) */
+        .sidebar { display: none; } 
+        
+        .sidebar-link { display: block; color: var(--text-muted); font-size: 22px; font-weight: 600; text-transform: uppercase; text-decoration: none; padding: 10px 0; transition: all 0.3s; cursor: pointer; }
+        .sidebar-link:hover, .sidebar-link.active { color: var(--main-color); transform: translateX(10px); text-shadow: 0 0 10px var(--main-color);}
 
         main { flex: 1; max-width: 1400px; width: 100%; margin: 0 auto; padding: 50px 20px; transition: opacity 0.3s; }
         .page-section { display: none; animation: slideUp 0.4s ease forwards; opacity: 0; }
@@ -124,23 +155,35 @@
 
         .tabs { display: flex; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
         .tab-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 12px 30px; font-size: 16px; font-weight: 700; font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase; transition: all 0.3s; border-radius: var(--border-radius); }
-        .tab-btn.active { background: var(--bg-panel); color: var(--main-color); border-color: var(--main-color); box-shadow: inset 0 0 15px rgba(255,0,60,0.1); }
+        .tab-btn.active { background: var(--bg-panel); color: var(--main-color); border-color: var(--main-color); box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.1); }
         .store-content { display: none; }
         .store-content.active { display: block; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
-        .card { background: var(--bg-panel); border: 1px solid var(--border); padding: 35px; position: relative; border-radius: var(--border-radius); transition: all 0.3s; }
+        
+        /* KARTLARA SÜREKLİ ANİMASYON EKLENDİ (Kural 8) */
+        .card { background: var(--bg-panel); border: 1px solid var(--border); padding: 35px; position: relative; border-radius: var(--border-radius); transition: all 0.3s; animation: float-continuous 6s ease-in-out infinite; }
+        /* Animasyon Gecikmeleri (Hepsi aynı anda zıplamasın diye) */
+        .card:nth-child(2n) { animation-delay: 1s; }
+        .card:nth-child(3n) { animation-delay: 2s; }
+        
+        @keyframes float-continuous {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
         .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--main-color); transform: scaleY(0); transition: transform 0.3s; transform-origin: bottom; border-radius: var(--border-radius) 0 0 var(--border-radius); }
-        .card:hover { border-color: var(--main-color); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card:hover { border-color: var(--main-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2;}
         body.light-theme .card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .card:hover::before { transform: scaleY(1); }
         .card h3 { font-size: 24px; margin-bottom: 15px; color: var(--text-main); }
         .card p { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin-bottom: 25px; }
 
         .btn-action { background: transparent; color: var(--text-main); border: 1px solid var(--main-color); padding: 12px 20px; font-size: 14px; font-weight: 700; font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase; width: 100%; transition: all 0.3s; border-radius: var(--border-radius); display: inline-block; text-align: center; text-decoration: none; }
-        .btn-action:hover { background: var(--main-color); color: white; box-shadow: 0 0 15px var(--main-color); }
+        .btn-action:hover { background: var(--main-color); color: #000; box-shadow: 0 0 15px var(--main-color); }
 
-        .welcome-banner { background: var(--bg-panel); border: 1px solid var(--main-color); padding: 30px; border-radius: var(--border-radius); margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: inset 0 0 20px rgba(255,0,60,0.1); }
+        .welcome-banner { background: var(--bg-panel); border: 1px solid var(--main-color); padding: 30px; border-radius: var(--border-radius); margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: inset 0 0 20px rgba(0, 255, 204, 0.1); }
         
         footer { background: var(--bg-panel); border-top: 2px solid var(--main-color); padding: 50px 40px; margin-top: auto; }
         .footer-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
@@ -150,6 +193,28 @@
         .footer-col ul li a { color: var(--text-muted); text-decoration: none; cursor: pointer; font-size: 15px; }
         .footer-col ul li a:hover { color: var(--main-color); }
         .footer-bottom { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 14px; }
+        
+        /* 12 YENİ ÖZELLİK İÇİN TOGGLE KUTULARI (Kural 6) */
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;}
+        .feature-box { background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px;}
+        .feature-box h4 { color: var(--main-color); font-family: 'Rajdhani'; font-size: 18px;}
+        .feature-box p { font-size: 13px; color: var(--text-muted); line-height: 1.4;}
+        
+        /* Checkbox Switch Style */
+        .toggle-switch { position: relative; width: 50px; height: 26px; display: inline-block;}
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-dark); border: 1px solid var(--border); transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .4s; }
+        input:checked + .slider { background-color: var(--main-color); border-color: var(--main-color); }
+        input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
+        
+        /* SÜREKLİ PULSE EFEKTİ İÇİN (Kural 8) */
+        .btn-pulse { animation: pulse-btn 2s infinite; }
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 255, 204, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
+        }
     </style>
 </head>
 <body>
@@ -159,17 +224,17 @@
     <!-- GİRİŞ EKRANI -->
     <div id="auth-view">
         <div class="auth-box">
-            <div class="brand-logo">BANPAN <span>GAMING</span></div>
-            <div class="auth-subtitle">Republic of Software</div>
+            <div class="brand-logo">DEV-<span>CORE</span></div>
+            <div class="auth-subtitle">CI/CD & DevOps Dashboard</div>
             
             <form onsubmit="handleLogin(event)">
-                <input type="text" id="isim-input" class="form-control" placeholder="Adınız" required>
-                <input type="text" id="soyad-input" class="form-control" placeholder="Soyadınız" required>
-                <input type="password" id="password-input" class="form-control" placeholder="Erişim Şifresi" required>
-                <button type="submit" class="btn-gamer">Sisteme Güvenli Giriş</button>
+                <input type="text" id="isim-input" class="form-control" placeholder="Developer Adı" required>
+                <input type="text" id="soyad-input" class="form-control" placeholder="Developer Soyadı" required>
+                <input type="password" id="password-input" class="form-control" placeholder="Root Şifresi" required>
+                <button type="submit" class="btn-gamer btn-pulse">Sisteme SSH Bağlantısı Kur</button>
             </form>
             
-            <div class="divider">Gerçek API ile Bağlan</div>
+            <div class="divider">Veya OAuth2 ile Bağlan</div>
             
             <!-- GOOGLE OTURUM AÇMA BUTONU -->
             <div class="google-auth-container" id="google-btn-container">
@@ -187,17 +252,45 @@
     <div id="app-view">
         <header>
             <div class="nav-container">
-                <div class="brand-logo" style="margin:0; font-size: 24px;">BANPAN <span>GAMING</span></div>
+                <div class="brand-logo" style="margin:0; font-size: 24px;">DEV-<span>CORE</span></div>
                 
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <button class="btn-action" style="width: auto; padding: 8px 15px; border-color: var(--text-muted); color: var(--text-muted);" onclick="toggleTheme()">Tema (Açık/Koyu)</button>
+                    <button class="btn-action" style="width: auto; padding: 8px 15px; border-color: var(--text-muted); color: var(--text-muted);" onclick="toggleTheme()">Dark/Light Mode</button>
                     <!-- ÇİFT YÖNLÜ MENÜ TETİKLEYİCİ -->
-                    <div class="menu-btn" onclick="toggleMenu()">[ MENÜ ]</div>
+                    <div class="menu-btn" id="main-menu-btn" onclick="toggleMenu()">[ ROOT_MENU ]</div>
                 </div>
             </div>
         </header>
 
-        <!-- SOL MENÜ: KEŞFET & KURUMSAL -->
+        <!-- KURAL 2: 4 YÖNLÜ BİRLEŞEN MENÜ OVERLAY -->
+        <div class="overlay-menu-wrapper" id="all-way-menu">
+            <!-- 4 Yönlü Paneller -->
+            <div class="menu-panel" id="panel-top"></div>
+            <div class="menu-panel" id="panel-bottom"></div>
+            <div class="menu-panel" id="panel-left"></div>
+            <div class="menu-panel" id="panel-right"></div>
+            
+            <!-- Menü İçeriği -->
+            <div class="menu-content">
+                <div class="menu-column">
+                    <h3>< DevOps & Altyapı ></h3>
+                    <a class="sidebar-link" onclick="switchPage('home')">Container Registry</a>
+                    <a class="sidebar-link" onclick="switchPage('tools')">CI/CD Toolchain</a>
+                    <a class="sidebar-link" onclick="switchPage('library')">Local Repositories</a>
+                    <a class="sidebar-link" onclick="switchPage('logs')">System Trace Logs</a>
+                </div>
+                <div class="menu-column">
+                    <h3>[ Developer Ayarları ]</h3>
+                    <!-- Kural 3: Kişiselleştirme Eklendi -->
+                    <a class="sidebar-link" onclick="switchPage('personalization')">Kişiselleştirme (12 Özellik)</a>
+                    <a class="sidebar-link" onclick="switchPage('profile')">Geliştirici Profili</a>
+                    <a class="sidebar-link" onclick="switchPage('docs')">API Docs (Swagger)</a>
+                    <a class="sidebar-link" style="color: #ff003c; margin-top: 20px; border: none;" onclick="logout()">>> End Session <<</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESKİ SIDEBAR KODLARI (Kural 1 Uyarınca Silinmedi, Sadece Gizlendi) -->
         <nav id="sidebar-left" class="sidebar">
             <h3 style="color: var(--main-color); margin-bottom: 20px; font-size: 20px;">< Keşfet ></h3>
             <a class="sidebar-link" onclick="switchPage('tools')">Sistem Araçları</a>
@@ -211,8 +304,6 @@
             <a class="sidebar-link" onclick="switchPage('privacy')">Gizlilik & Güvenlik</a>
             <a class="sidebar-link" onclick="switchPage('support')">Destek Merkezi</a>
         </nav>
-
-        <!-- SAĞ MENÜ: SİSTEMLER & PROFİL -->
         <nav id="sidebar-right" class="sidebar">
             <h3 style="color: var(--main-color); margin-bottom: 20px; font-size: 20px;">[ Sistemler ]</h3>
             <a class="sidebar-link active" onclick="switchPage('home')">Modül Merkezi</a>
@@ -226,34 +317,34 @@
         </nav>
 
         <main>
-            <!-- 1. SİSTEM MERKEZİ -->
+            <!-- 1. SİSTEM MERKEZİ (Developer Metinleriyle Değiştirildi - Kural 7) -->
             <div id="home" class="page-section active">
                 <div class="welcome-banner">
                     <div>
-                        <h2 style="color: var(--main-color); margin-bottom: 10px;">Hoş Geldin, <span id="welcome-name">Kullanıcı</span>!</h2>
-                        <p style="color: var(--text-muted); font-size: 16px;" id="welcome-about">Sistemler operasyonel. Kütüphanene oyun ve modülleri ekleyebilir, ardından indirebilirsin.</p>
+                        <h2 style="color: var(--main-color); margin-bottom: 10px;">Hoş Geldin, Developer <span id="welcome-name">Kullanıcı</span>!</h2>
+                        <p style="color: var(--text-muted); font-size: 16px;" id="welcome-about">Cluster düğümleri operasyonel. Docker imajlarını ve scriptleri repolara pull/push yapabilirsin.</p>
                     </div>
-                    <div style="font-size: 40px; color: var(--main-color);">⛊</div>
+                    <div style="font-size: 40px; color: var(--main-color); animation: pulse-btn 2s infinite; border-radius:50%;">⛊</div>
                 </div>
 
-                <h1 class="section-title">Modül Merkezi</h1>
+                <h1 class="section-title">Container Registry Merkezi</h1>
                 <div class="tabs">
-                    <button class="tab-btn active" id="btn-windows" onclick="switchStoreTab('windows')">Windows Altyapısı</button>
-                    <button class="tab-btn" id="btn-android" onclick="switchStoreTab('android')">Android APK Modülleri</button>
-                    <button class="tab-btn" id="btn-vip" onclick="switchStoreTab('vip')">VIP Gizli Erişim</button>
+                    <button class="tab-btn active" id="btn-windows" onclick="switchStoreTab('windows')">Backend Altyapısı</button>
+                    <button class="tab-btn" id="btn-android" onclick="switchStoreTab('android')">Frontend & Mobile Nodes</button>
+                    <button class="tab-btn" id="btn-vip" onclick="switchStoreTab('vip')">Root/Sudo Erişimleri</button>
                 </div>
                 
                 <div id="store-windows" class="store-content active">
                     <div class="grid">
                         <div class="card">
-                            <h3>BANPAN Core Motoru</h3>
-                            <p>Sıfır gecikme odaklı, donanımı sömürmeyen ana yönetim merkezi.</p>
-                            <button class="btn-action" onclick="addToLibrary('BANPAN Core Motoru')">Kütüphaneye Ekle</button>
+                            <h3>Kubernetes Cluster Manager</h3>
+                            <p>Sıfır kesinti odaklı, mikroservislerinizi yöneten ana orkestrasyon aracı.</p>
+                            <button class="btn-action" onclick="addToLibrary('Kubernetes Cluster Manager')">Repo'ya Çek (Pull)</button>
                         </div>
                         <div class="card">
-                            <h3>Kuantum Şifreleme</h3>
-                            <p>Paket gönderimlerini şifreler ve ping değerlerini stabilize eder.</p>
-                            <button class="btn-action" onclick="addToLibrary('Kuantum Şifreleme')">Kütüphaneye Ekle</button>
+                            <h3>End-to-End API Encryption (JWT/RSA)</h3>
+                            <p>Uçtan uca veri paketlerini şifreler, payload sızıntılarını ve token hijacking'i engeller.</p>
+                            <button class="btn-action" onclick="addToLibrary('End-to-End API Encryption (JWT/RSA)')">Repo'ya Çek (Pull)</button>
                         </div>
                     </div>
                 </div>
@@ -261,9 +352,9 @@
                 <div id="store-android" class="store-content">
                     <div class="grid">
                         <div class="card">
-                            <h3>Mobile Commander</h3>
-                            <p>Akıllı telefonlardan tam sistem kontrolü sağlayan araç.</p>
-                            <button class="btn-action" onclick="addToLibrary('Mobile Commander')">Kütüphaneye Ekle</button>
+                            <h3>React Native / Flutter Debugger</h3>
+                            <p>Akıllı telefon simülatörlerinden tam DOM ve State kontrolü sağlayan araç.</p>
+                            <button class="btn-action" onclick="addToLibrary('React Native / Flutter Debugger')">Repo'ya Çek (Pull)</button>
                         </div>
                     </div>
                 </div>
@@ -271,9 +362,9 @@
                 <div id="store-vip" class="store-content">
                     <div class="grid">
                         <div class="card" style="border-color: #ffd700;">
-                            <h3 style="color: #ffd700;">Gölge Protokolü (V.1)</h3>
-                            <p>Yalnızca onaylı üyelere açık, kalıntı bırakmayan sistem aracı.</p>
-                            <button class="btn-action" style="border-color: #ffd700; color: #ffd700;" onclick="showToast('Yönetici onayı gerekiyor.')">Erişim Talep Et</button>
+                            <h3 style="color: #ffd700;">Zero-Trace Log Wiper (DevOps)</h3>
+                            <p>Yalnızca yetkili SysAdminlere açık, sunucu loglarını ve footprintleri temizleyen araç.</p>
+                            <button class="btn-action" style="border-color: #ffd700; color: #ffd700;" onclick="showToast('Sudo yetkisi gerekiyor.')">Erişim Talep Et</button>
                         </div>
                     </div>
                 </div>
@@ -281,56 +372,153 @@
 
             <!-- 2. KÜTÜPHANE -->
             <div id="library" class="page-section">
-                <h1 class="section-title">Kütüphanem</h1>
-                <p style="margin-bottom: 30px; color: var(--text-muted);">Buraya eklediğin modülleri bilgisayarına gerçek bir .txt dosyası olarak indirebilirsin.</p>
+                <h1 class="section-title">Local Repositories (Kütüphane)</h1>
+                <p style="margin-bottom: 30px; color: var(--text-muted);">Buraya eklediğin paketleri bilgisayarına `.zip` simülasyonu olarak indirebilirsin.</p>
                 <div id="library-grid" class="grid"></div>
                 <div id="empty-library" style="text-align: center; padding: 60px; color: var(--text-muted); border: 2px dashed var(--border);">
-                    Kütüphanen şu an boş.<br><br>
-                    <button class="btn-action" style="width: auto;" onclick="switchPage('home')">Modül Merkezine Git</button>
+                    Local repository şu an boş.<br><br>
+                    <button class="btn-action" style="width: auto;" onclick="switchPage('home')">Registry Merkezine Git</button>
                 </div>
             </div>
 
-            <!-- 3. DETAYLI PROFİL VE HESAP AYARLARI (14 YENİ ÖZELLİK) -->
+            <!-- KURAL 3 VE KURAL 6: YENİ KİŞİSELLEŞTİRME SAYFASI (12 FARKLI ÖZELLİK) -->
+            <div id="personalization" class="page-section">
+                <h1 class="section-title">Developer Workspace Kişiselleştirme</h1>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">IDE ve Geliştirme Ortamı için 12 Farklı Modülü Aktifleştirin. (Veriler LocalStorage ile kaydedilir)</p>
+                
+                <div class="feature-grid">
+                    <!-- 1 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>1. Git Auto-Commit</h4>
+                            <p>Değişiklikleri algılayıp otomatik olarak local branch'e commit atar.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-1" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 2 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>2. Live Server Reload</h4>
+                            <p>DOM üzerinde bir değişiklik yapıldığında portu otomatik yeniler.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-2" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 3 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>3. GraphQL Mocking</h4>
+                            <p>Backend API'leri hazır olmadan dummy verilerle GraphQL endpoint'i üretir.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-3" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 4 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>4. JWT Auto-Refresh</h4>
+                            <p>Oturum tokenleri süresi dolmadan arkaplanda otomatik yenilenir.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-4" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 5 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>5. Docker Auto-Build</h4>
+                            <p>Dockerfile güncellendiğinde container'i yeniden build eder.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-5" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 6 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>6. Advanced Syntax Highlighting</h4>
+                            <p>Kod editörü bileşenlerinde derin syntax renklendirmesini açar.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-6" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 7 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>7. Code Auto-Format (Prettier)</h4>
+                            <p>Dosya kaydedildiğinde standartlara göre kodu otomatik formatlar.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-7" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 8 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>8. Webpack Bundle Analyzer</h4>
+                            <p>Derlenen Javascript dosyalarının boyut haritasını çıkarır.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-8" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 9 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>9. Network Throttling (3G Modu)</h4>
+                            <p>Uygulamayı test etmek için bağlantı hızını yavaşlatır.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-9" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 10 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>10. Service Worker Bypass</h4>
+                            <p>Geliştirme esnasında önbellekleme (Cache) sistemlerini devre dışı bırakır.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-10" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 11 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>11. Headless Browser Mode</h4>
+                            <p>E2E testleri için arkaplanda görünmez bir Chromium sekmesi çalıştırır.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-11" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                    <!-- 12 -->
+                    <div class="feature-box">
+                        <div>
+                            <h4>12. Strict Mode Linting</h4>
+                            <p>Konsolda oluşan en ufak memory leak veya uyarıda build işlemini keser.</p>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" id="feat-12" onchange="saveFeatures()"><span class="slider"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. DETAYLI PROFİL VE HESAP AYARLARI -->
             <div id="profile" class="page-section">
-                <h1 class="section-title">Hesap Komuta Merkezi</h1>
+                <h1 class="section-title">Geliştirici Profil Ayarları</h1>
                 
                 <div class="grid">
-                    <!-- KART 1: TEMEL KİMLİK (1, 2, 3) -->
                     <div class="card">
-                        <h3 style="color: var(--main-color);">1. Temel Kimlik & Bilgiler</h3>
-                        <p style="margin-bottom: 20px;">Sistemde görünen kimliğinizi güncelleyin.</p>
+                        <h3 style="color: var(--main-color);">1. Developer Kimliği</h3>
+                        <p style="margin-bottom: 20px;">Sistemde (Git) görünen kimliğinizi güncelleyin.</p>
                         <input type="text" id="edit-ad" class="form-control" placeholder="Adınız">
                         <input type="text" id="edit-soyad" class="form-control" placeholder="Soyadınız">
-                        <input type="text" id="edit-kodadi" class="form-control" placeholder="Kod Adı (Rumuz)">
+                        <input type="text" id="edit-kodadi" class="form-control" placeholder="Git Username">
                         <input type="email" id="edit-email" class="form-control" placeholder="Kayıtlı E-Posta">
                         <select id="edit-bolge" class="form-control">
                             <option value="">Operasyon Bölgesi Seçin</option>
-                            <option value="TR">Türkiye (TR)</option>
-                            <option value="EU">Avrupa (EU)</option>
-                            <option value="US">Kuzey Amerika (US)</option>
-                            <option value="RU">Rusya (RU)</option>
+                            <option value="TR">Türkiye (TR) Node</option>
+                            <option value="EU">Avrupa (EU) Node</option>
+                            <option value="US">Kuzey Amerika (US) Node</option>
                         </select>
-                        <textarea id="edit-hakkimda" class="form-control" placeholder="Hakkımda kısa bir yazı..." rows="3"></textarea>
+                        <textarea id="edit-hakkimda" class="form-control" placeholder="Backend, Frontend, DevOps..." rows="3"></textarea>
                     </div>
 
-                    <!-- KART 2: SİBER BAĞLANTILAR (4, 5) -->
                     <div class="card">
-                        <h3 style="color: var(--main-color);">2. İletişim & Entegrasyon</h3>
-                        <p style="margin-bottom: 20px;">Diğer siber platformlardaki bağlantılarınız.</p>
-                        <input type="text" id="edit-discord" class="form-control" placeholder="Discord ID (Örn: user#1234)">
+                        <h3 style="color: var(--main-color);">2. İletişim & API Entegrasyon</h3>
+                        <input type="text" id="edit-discord" class="form-control" placeholder="Discord RPC ID">
                         <input type="text" id="edit-github" class="form-control" placeholder="GitHub Profil Linki">
-                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">*Bağlantılar diğer kullanıcılara açık profilinizde görünür.</p>
                     </div>
 
-                    <!-- KART 3: GÜVENLİK & GİZLİLİK (6, 7, 8, 9) -->
                     <div class="card">
                         <h3 style="color: var(--main-color);">3. Güvenlik & Gizlilik</h3>
-                        <p style="margin-bottom: 20px;">Hesabınızı dış tehditlere karşı koruyun.</p>
-                        
-                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Profil Gizliliği:</label>
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Repository Gizliliği:</label>
                         <select id="edit-gizlilik" class="form-control">
-                            <option value="acik">Herkese Açık Profil</option>
-                            <option value="hayalet">Hayalet Modu (Gizli)</option>
+                            <option value="acik">Public (Açık Kaynak)</option>
+                            <option value="hayalet">Private (Kapalı Kaynak)</option>
                         </select>
 
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
@@ -339,22 +527,19 @@
                         </div>
 
                         <hr style="border-color: var(--border); margin: 20px 0;">
-                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Şifre Değiştirme:</label>
-                        <input type="password" id="edit-oldpass" class="form-control" placeholder="Mevcut Şifreniz">
-                        <input type="password" id="edit-newpass" class="form-control" placeholder="Yeni Şifre">
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Sudo Şifre Değiştirme:</label>
+                        <input type="password" id="edit-oldpass" class="form-control" placeholder="Mevcut Root Şifreniz">
+                        <input type="password" id="edit-newpass" class="form-control" placeholder="Yeni Root Şifre">
                         <button class="btn-action" style="margin-bottom: 15px;" onclick="changePassword()">Şifreyi Güncelle</button>
 
-                        <button class="btn-action" style="border-color: #ffaa00; color: #ffaa00;" onclick="closeOtherSessions()">Tüm Aktif Oturumları Kapat</button>
+                        <button class="btn-action" style="border-color: #ffaa00; color: #ffaa00;" onclick="closeOtherSessions()">Tüm Aktif SSH Oturumlarını Kapat</button>
                     </div>
 
-                    <!-- KART 4: ARAYÜZ & KİŞİSELLEŞTİRME (10, 11, 12, 13, 14) -->
                     <div class="card">
                         <h3 style="color: var(--main-color);">4. Arayüz & Tasarım</h3>
-                        <p style="margin-bottom: 20px;">Sistemi kendi zevkinize göre şekillendirin.</p>
-                        
                         <div style="margin-bottom: 15px;">
                             <label style="display:block; margin-bottom: 5px; color: var(--text-muted);">Ana Neon Rengi:</label>
-                            <input type="color" id="theme-color-picker" value="#ff003c" style="width: 100%; height: 40px; border: none; cursor: pointer; background: transparent;">
+                            <input type="color" id="theme-color-picker" value="#00ffcc" style="width: 100%; height: 40px; border: none; cursor: pointer; background: transparent;">
                         </div>
 
                         <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Tasarım Hatları:</label>
@@ -392,48 +577,45 @@
                         </div>
                     </div>
 
-                    <!-- KART 5: DOSYA YÜKLEME (Mevcut) -->
                     <div class="card">
-                        <h3 style="color: var(--main-color);">5. Sisteme Dosya Yükle</h3>
-                        <p style="margin-bottom: 20px;">Kendi yapılandırma dosyalarınızı sisteme aktarın.</p>
+                        <h3 style="color: var(--main-color);">5. Sisteme Dockerfile/JSON Yükle</h3>
                         <div style="border: 2px dashed var(--border); padding: 30px; text-align: center; border-radius: var(--border-radius); margin-bottom: 20px;">
                             <input type="file" id="fileUploader" style="display: none;" onchange="handleFileUpload(event)">
                             <label for="fileUploader" class="btn-action" style="cursor: pointer; width: auto;">Dosya Seç</label>
                             <div id="fileNameDisplay" style="margin-top: 15px; color: var(--text-main); font-weight: bold;">Henüz dosya seçilmedi.</div>
                         </div>
-                        <button class="btn-action" onclick="uploadFile()">Sunucuya Yükle</button>
+                        <button class="btn-action" onclick="uploadFile()">Sunucuya (S3 Bucket) Yükle</button>
                     </div>
 
-                    <!-- TÜMÜNÜ KAYDET BUTONU -->
                     <div class="card" style="grid-column: 1 / -1; text-align: center;">
-                        <button class="btn-gamer" onclick="updateAllProfileSettings()">TÜM HESAP VE ARAYÜZ AYARLARINI KAYDET</button>
+                        <button class="btn-gamer btn-pulse" onclick="updateAllProfileSettings()">TÜM HESAP VE ARAYÜZ AYARLARINI KAYDET</button>
                     </div>
                 </div>
             </div>
 
-            <!-- DİĞER SAYFALAR -->
+            <!-- DİĞER SAYFALAR (Geliştirici temalı değiştirildi) -->
             <div id="logs" class="page-section">
-                <h1 class="section-title">Sistem İşlemleri</h1>
+                <h1 class="section-title">System Trace Logs</h1>
                 <div class="card">
-                    <h3>Aktif İşlemler</h3>
-                    <p>Sisteminizde şu an çalışan herhangi bir arka plan işlemi bulunmamaktadır. Ağ trafiğiniz güvenli.</p>
+                    <h3>Aktif İşlemler (htop)</h3>
+                    <p style="font-family: monospace; color:#00ffcc;">root@dev-core:~# systemctl status nginx<br>Active: active (running) since Fri 2026-07-24 01:28:01 +0300<br>Ağ trafiğiniz güvenli, packet loss %0.</p>
                 </div>
             </div>
             
-            <div id="market" class="page-section"><h1 class="section-title">Karaborsa</h1><div class="card"><h3>Zero-Day Modülü</h3><p>Satın almak için yetkiniz yok.</p></div></div>
-            <div id="tools" class="page-section"><h1 class="section-title">Sistem Araçları</h1><div class="card"><h3>Çöp Temizleyici</h3><button class="btn-action" onclick="showToast('Disk temizlendi.')">Temizle</button></div></div>
-            <div id="community" class="page-section"><h1 class="section-title">Topluluk</h1><div class="card"><p>Topluluk sunucuları bakımdadır.</p></div></div>
-            <div id="academy" class="page-section"><h1 class="section-title">Siber Akademi</h1><div class="card"><p>Eğitim modülleri yakında eklenecektir.</p></div></div>
-            <div id="proxy" class="page-section"><h1 class="section-title">VPN Yönlendirmesi</h1><div class="card"><button class="btn-action" onclick="showToast('Bağlantı kuruldu.')">Bağlan</button></div></div>
-            <div id="docs" class="page-section"><h1 class="section-title">Dökümantasyon</h1><div class="card"><p>Yazılım kılavuzu.</p></div></div>
-            <div id="company" class="page-section"><h1 class="section-title">Şirket Profili</h1><div class="card"><p>BANPAN INC. Kurumsal Kimlik.</p></div></div>
-            <div id="privacy" class="page-section"><h1 class="section-title">Gizlilik</h1><div class="card"><p>Verileriniz cihazınızda saklanır.</p></div></div>
-            <div id="support" class="page-section"><h1 class="section-title">Destek Merkezi</h1><div class="card"><input type="text" class="form-control" placeholder="Konu"><button class="btn-action" onclick="showToast('İletildi.')">Gönder</button></div></div>
+            <div id="market" class="page-section"><h1 class="section-title">Dark Web / Exploit Market</h1><div class="card"><h3>Zero-Day Modülü</h3><p>Satın almak için yetkiniz yok.</p></div></div>
+            <div id="tools" class="page-section"><h1 class="section-title">CI/CD Toolchain</h1><div class="card"><h3>Pipeline Cache Temizleyici</h3><button class="btn-action" onclick="showToast('Runner önbelleği temizlendi.')">Temizle</button></div></div>
+            <div id="community" class="page-section"><h1 class="section-title">StackOverflow / Topluluk</h1><div class="card"><p>Topluluk sunucuları bakımdadır.</p></div></div>
+            <div id="academy" class="page-section"><h1 class="section-title">WebAssembly Akademisi</h1><div class="card"><p>Eğitim modülleri yakında eklenecektir.</p></div></div>
+            <div id="proxy" class="page-section"><h1 class="section-title">Reverse Proxy (Nginx)</h1><div class="card"><button class="btn-action" onclick="showToast('80 portu 443 portuna yönlendirildi.')">Proxy Başlat</button></div></div>
+            <div id="docs" class="page-section"><h1 class="section-title">API Docs (Swagger)</h1><div class="card"><p>Tüm RESTful uç noktalarının dokümantasyonu.</p></div></div>
+            <div id="company" class="page-section"><h1 class="section-title">Git Organization</h1><div class="card"><p>DEV-CORE Kurumsal Kimlik.</p></div></div>
+            <div id="privacy" class="page-section"><h1 class="section-title">GDPR & Data Policy</h1><div class="card"><p>Verileriniz tarayıcının LocalStorage veritabanında saklanır.</p></div></div>
+            <div id="support" class="page-section"><h1 class="section-title">Jira / Ticket Merkezi</h1><div class="card"><input type="text" class="form-control" placeholder="Issue Başlığı"><button class="btn-action" onclick="showToast('Ticket oluşturuldu.')">Gönder</button></div></div>
 
         </main>
 
         <footer>
-            <div class="footer-bottom">&copy; 2026 BANPAN GAMING INC. Tüm Hakları Saklıdır.</div>
+            <div class="footer-bottom">&copy; 2026 DEV-CORE ALTYAPISI. Tüm Hakları Saklıdır.</div>
         </footer>
     </div>
 
@@ -444,14 +626,12 @@
     // BİLDİRİM SİSTEMİ
     window.showToast = function(e) {
         const t = b$("toast-container"), n = document.createElement("div");
-        n.className = "toast"; n.innerHTML = ">_ BİLGİ: " + e; t.appendChild(n);
+        n.className = "toast"; n.innerHTML = ">_ LOG: " + e; t.appendChild(n);
         setTimeout(() => n.classList.add("show"), 10);
         setTimeout(() => { n.classList.remove("show"); setTimeout(() => n.remove(), 400); }, 3500);
         
-        // Ses Efekti (Eğer Açıksa)
         if(localStorage.getItem("bp_sound") !== "false") {
-            // Sadece görsel/sözel simülasyon, gerçek mp3 eklenirse buraya Audio nesnesi konur.
-            console.log("Beep!"); 
+            console.log("System Beep!"); 
         }
     };
 
@@ -460,11 +640,22 @@
         document.body.classList.toggle('light-theme');
         const isLight = document.body.classList.contains('light-theme');
         localStorage.setItem('banpan_theme', isLight ? 'light' : 'dark');
-        showToast(isLight ? "Açık tema aktif edildi." : "Koyu tema aktif edildi.");
+        showToast(isLight ? "Açık tema (Light Mode) aktif edildi." : "Koyu tema (Dark Mode) aktif edildi.");
     };
 
-    // ÇİFT YÖNLÜ MENÜ (SAĞ & SOL)
+    // KURAL 2: 4 YÖNLÜ MENÜ AÇMA/KAPAMA SİSTEMİ (Eski sağ-sol menü yerine)
     window.toggleMenu = function() {
+        const overlay = b$('all-way-menu');
+        overlay.classList.toggle('open');
+        const btn = b$('main-menu-btn');
+        if(overlay.classList.contains('open')) {
+            btn.innerText = "[ KAPAT ]";
+            btn.style.color = "var(--main-color)";
+        } else {
+            btn.innerText = "[ ROOT_MENU ]";
+            btn.style.color = "var(--text-main)";
+        }
+        // Kural 1 uyarınca eski kodlar tetiklenmeye devam ediyor ama görsel etki yapmıyorlar (gizlendiler)
         b$('sidebar-left').classList.toggle('open');
         b$('sidebar-right').classList.toggle('open');
     };
@@ -478,19 +669,18 @@
         
         localStorage.setItem("bp_ad", ad);
         localStorage.setItem("bp_soyad", soyad);
-        // Eğer kod adı boşsa otomatik ata
-        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "Ghost_" + Math.floor(Math.random()*1000));
-        if(!localStorage.getItem("bp_hakkimda")) localStorage.setItem("bp_hakkimda", "Yeni üye sisteme katıldı.");
+        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "DevNode_" + Math.floor(Math.random()*1000));
+        if(!localStorage.getItem("bp_hakkimda")) localStorage.setItem("bp_hakkimda", "Yeni geliştirici cluster'a bağlandı.");
         
         completeLogin();
     };
 
     // GOOGLE GİRİŞ YANITI
     window.handleGoogleLoginResponse = function(response) {
-        localStorage.setItem("bp_ad", "Google");
-        localStorage.setItem("bp_soyad", "Kullanıcısı");
-        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "Google_Ghost");
-        localStorage.setItem("bp_hakkimda", "Google üzerinden doğrulandı.");
+        localStorage.setItem("bp_ad", "OAuth");
+        localStorage.setItem("bp_soyad", "Developer");
+        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "Google_Dev");
+        localStorage.setItem("bp_hakkimda", "Google Auth Provider üzerinden doğrulandı.");
         completeLogin();
     };
 
@@ -498,22 +688,49 @@
         b$("auth-view").style.display = "none";
         b$("app-view").style.display = "flex";
         loadProfileData(); 
+        loadFeatures(); // Kural 4: Verileri çekme
         renderLibrary();
-        showToast("Sisteme başarıyla giriş yapıldı.");
+        showToast("Sisteme SSH üzerinden güvenle giriş yapıldı.");
     };
 
     window.logout = function() {
         b$("app-view").style.display = "none";
         b$("auth-view").style.display = "flex";
         document.querySelector("form").reset();
+        
+        b$('all-way-menu').classList.remove('open');
+        b$('main-menu-btn').innerText = "[ ROOT_MENU ]";
+
         b$('sidebar-left').classList.remove('open');
         b$('sidebar-right').classList.remove('open');
-        showToast("Çıkış yapıldı.");
+        showToast("Session sonlandırıldı (Çıkış yapıldı).");
     };
 
-    // 14 YENİ ÖZELLİĞİ YÜKLEME VE KAYDETME SİSTEMİ
+    // KİŞİSELLEŞTİRME SAYFASI 12 ÖZELLİK KAYIT/OKUMA SİSTEMİ (KURAL 4 & 6)
+    window.saveFeatures = function() {
+        for(let i=1; i<=12; i++) {
+            const cb = b$("feat-" + i);
+            if(cb) {
+                localStorage.setItem("dev_feat_" + i, cb.checked);
+            }
+        }
+        showToast("Workspace ayarları güncellendi ve LocalStorage'a kaydedildi.");
+    };
+
+    window.loadFeatures = function() {
+        for(let i=1; i<=12; i++) {
+            const cb = b$("feat-" + i);
+            const state = localStorage.getItem("dev_feat_" + i);
+            if(cb && state === "true") {
+                cb.checked = true;
+            } else if (cb) {
+                cb.checked = false;
+            }
+        }
+    };
+
+    // PROFIL VERİ YÜKLEME VE KAYDETME
     window.loadProfileData = function() {
-        // Okuma İşlemleri
         const ad = localStorage.getItem("bp_ad") || "";
         const soyad = localStorage.getItem("bp_soyad") || "";
         const kodadi = localStorage.getItem("bp_kodadi") || "";
@@ -524,16 +741,14 @@
         const github = localStorage.getItem("bp_github") || "";
         const gizlilik = localStorage.getItem("bp_gizlilik") || "acik";
         const tfa = localStorage.getItem("bp_2fa") === "true";
-        const sound = localStorage.getItem("bp_sound") !== "false"; // default true
+        const sound = localStorage.getItem("bp_sound") !== "false"; 
         const lang = localStorage.getItem("bp_lang") || "tr";
         const font = localStorage.getItem("bp_font") || "'Rajdhani', sans-serif";
         const anim = localStorage.getItem("bp_anim") || "10s";
 
-        // Karşılama Ekranı
         b$("welcome-name").innerText = kodadi !== "" ? kodadi : (ad + " " + soyad);
-        b$("welcome-about").innerText = hakkimda !== "" ? "Hakkında: " + hakkimda : "Sistemler operasyonel.";
+        b$("welcome-about").innerText = hakkimda !== "" ? "Role: " + hakkimda : "Cluster düğümleri operasyonel.";
         
-        // Inputları Doldurma
         b$("edit-ad").value = ad;
         b$("edit-soyad").value = soyad;
         b$("edit-hakkimda").value = hakkimda;
@@ -549,13 +764,11 @@
         b$("theme-font-style").value = font;
         b$("theme-anim-speed").value = anim;
 
-        // Arayüz Değişkenlerini (CSS) Uygulama
         document.documentElement.style.setProperty("--main-font", font);
         document.documentElement.style.setProperty("--anim-speed", anim);
     };
 
     window.updateAllProfileSettings = function() {
-        // Kayıt İşlemleri
         localStorage.setItem("bp_ad", b$("edit-ad").value);
         localStorage.setItem("bp_soyad", b$("edit-soyad").value);
         localStorage.setItem("bp_kodadi", b$("edit-kodadi").value);
@@ -571,7 +784,6 @@
         localStorage.setItem("bp_font", b$("theme-font-style").value);
         localStorage.setItem("bp_anim", b$("theme-anim-speed").value);
         
-        // Tema ve Border Kaydı
         const newColor = b$("theme-color-picker").value;
         const newBorder = b$("theme-border-style").value;
         document.documentElement.style.setProperty("--main-color", newColor);
@@ -579,26 +791,23 @@
         localStorage.setItem("banpan_theme_color", newColor);
         localStorage.setItem("banpan_theme_border", newBorder);
 
-        loadProfileData(); // DOM'u ve UI'yi hemen güncelle
-        showToast("Tüm kimlik, güvenlik ve arayüz ayarları başarıyla kaydedildi.");
+        loadProfileData(); 
+        showToast("Tüm developer kimlik, arayüz ve sistem ayarları veritabanına kaydedildi.");
     };
 
-    // Şifre Değiştirme (Simülasyon)
     window.changePassword = function() {
         const oldP = b$("edit-oldpass").value;
         const newP = b$("edit-newpass").value;
-        if(oldP === "" || newP === "") { showToast("Şifre alanları boş bırakılamaz."); return; }
+        if(oldP === "" || newP === "") { showToast("Sudo şifre alanları boş bırakılamaz."); return; }
         b$("edit-oldpass").value = "";
         b$("edit-newpass").value = "";
-        showToast("Güvenlik şifreniz başarıyla güncellendi.");
+        showToast("Root/Sudo güvenlik şifreniz güncellendi.");
     };
 
-    // Aktif Oturumları Kapatma
     window.closeOtherSessions = function() {
-        showToast("Diğer cihazlardaki (Telefon, Tablet, vb.) tüm oturumlarınız kapatıldı.");
+        showToast("Diğer node'lardaki tüm aktif SSH oturumlarınız kapatıldı.");
     };
 
-    // DOSYA YÜKLEME
     let selectedFile = null;
     window.handleFileUpload = function(event) {
         selectedFile = event.target.files[0];
@@ -608,10 +817,10 @@
     };
 
     window.uploadFile = function() {
-        if(!selectedFile) { showToast("Lütfen önce bir dosya seçin."); return; }
-        showToast(`'${selectedFile.name}' adlı dosya sunucuya yükleniyor...`);
+        if(!selectedFile) { showToast("Lütfen önce bir dosya (JSON/Dockerfile vb.) seçin."); return; }
+        showToast(`'${selectedFile.name}' adlı dosya S3 Bucket'a aktarılıyor...`);
         setTimeout(() => {
-            showToast("Yükleme işlemi başarılı!");
+            showToast("Upload işlemi 200 OK yanıtı ile tamamlandı.");
             b$("fileNameDisplay").innerText = "Henüz dosya seçilmedi.";
             b$("fileUploader").value = "";
             selectedFile = null;
@@ -624,6 +833,12 @@
         b$(e).classList.add("active");
         q$(".sidebar-link").forEach(e => e.classList.remove("active"));
         if (window.event && window.event.currentTarget) { window.event.currentTarget.classList.add("active"); }
+        
+        // Kapatma Fonksiyonları
+        b$('all-way-menu').classList.remove('open');
+        b$('main-menu-btn').innerText = "[ ROOT_MENU ]";
+        b$('main-menu-btn').style.color = "var(--text-main)";
+
         b$('sidebar-left').classList.remove('open');
         b$('sidebar-right').classList.remove('open');
         window.scrollTo(0, 0);
@@ -641,16 +856,16 @@
 
     window.addToLibrary = function(e) {
         let a = getLibraryData();
-        if (a.some(t => t.name === e)) return void showToast("Bu modül zaten kütüphanende.");
+        if (a.some(t => t.name === e)) return void showToast("Bu paket zaten Local Repository'de mevcut.");
         a.push({ name: e });
         localStorage.setItem("bp_lib", JSON.stringify(a));
-        showToast(e + " kütüphaneye eklendi.");
+        showToast("Paket başarıyla pull edildi: " + e);
         renderLibrary();
     };
 
     window.realDownload = function(fileName) {
-        showToast(fileName + " dosyası oluşturuluyor ve indiriliyor...");
-        const fileContent = "Bu dosya BANPAN sisteminden indirilmiştir.\n\nModül Adı: " + fileName + "\nSistem Tarihi: " + new Date().toLocaleString() + "\nİndiren Kullanıcı: " + (localStorage.getItem("bp_ad") || "Bilinmiyor");
+        showToast(fileName + " paketi derlenip indiriliyor...");
+        const fileContent = "DEV-CORE CLUSTER \n\nImage/Package: " + fileName + "\nBuild Tarihi: " + new Date().toLocaleString() + "\nCommitter: " + (localStorage.getItem("bp_kodadi") || "Root");
         const blob = new Blob([fileContent], { type: 'text/plain' });
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(blob);
@@ -669,8 +884,8 @@
             t.insertAdjacentHTML("beforeend", `
                 <div class="card" style="border-color: var(--main-color);">
                     <h3 style="color: var(--main-color);">${item.name}</h3>
-                    <p style="margin-bottom: 20px;">Durum: <strong style="color: #00ff00;">Kullanıma Hazır</strong></p>
-                    <button class="btn-action" onclick="realDownload('${item.name}')">Bilgisayara İndir</button>
+                    <p style="margin-bottom: 20px;">Durum: <strong style="color: #00ffcc;">Build Passed (Ready)</strong></p>
+                    <button class="btn-action" onclick="realDownload('${item.name}')">ZIP Olarak İndir</button>
                 </div>
             `);
         });
@@ -678,9 +893,8 @@
 
     // Başlangıç Ayarları
     document.addEventListener('DOMContentLoaded', () => {
-        // Temayı Uygula
         if(localStorage.getItem('banpan_theme') === 'light') { document.body.classList.add('light-theme'); }
-        const c = localStorage.getItem("banpan_theme_color") || "#ff003c";
+        const c = localStorage.getItem("banpan_theme_color") || "#00ffcc";
         const border = localStorage.getItem("banpan_theme_border") || "0px";
         const font = localStorage.getItem("bp_font") || "'Rajdhani', sans-serif";
         const anim = localStorage.getItem("bp_anim") || "10s";
@@ -693,7 +907,6 @@
         if(b$("theme-color-picker")) b$("theme-color-picker").value = c;
         if(b$("theme-border-style")) b$("theme-border-style").value = border;
 
-        // Google Butonu Yüklemesi
         const gsiScript = document.createElement('script');
         gsiScript.src = 'https://accounts.google.com/gsi/client';
         gsiScript.async = true;
