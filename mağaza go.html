@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANPAN Store Go | Digital Market</title>
+    
+    <!-- F12, SAĞ TIK & CTRL+U ENGELLEYİCİ -->
+    <script>
+        !function(){const e=["preventDefault","contextmenu","keydown","ctrlKey","shiftKey","keyCode"];document.addEventListener(e[1],t=>t[e[0]]()),document.addEventListener(e[2],t=>{if(123===t[e[5]]||t[e[3]]&&t[e[4]]&&(73===t[e[5]]||74===t[e[5]]||67===t[e[5]])||t[e[3]]&&85===t[e[5]])return t[e[0]](),!1}),setInterval(function(){try{debugger}catch(e){}},50)}();
+    </script>
+    
+    <!-- Google Login API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        /* Modern Fontlar */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap');
+        
+        :root {
+            --bg-dark: #0f0f13;
+            --bg-panel: rgba(22, 22, 26, 0.85); 
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.08);
+            --main-color: #00d2ff; 
+            --main-color-hover: #0099cc;
+            --border-radius: 12px; 
+            --text-main: #ffffff;
+            --text-muted: #8b929e;
+            --border: rgba(255, 255, 255, 0.1);
+            --main-font: 'Inter', sans-serif;
+            --backdrop-blur: blur(25px);
+        }
+
+        body.light-theme {
+            --bg-dark: #f0f4f8;
+            --bg-panel: rgba(255, 255, 255, 0.9);
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --main-color: #0078d4;
+            --main-color-hover: #005a9e;
+            --text-main: #111827;
+            --text-muted: #64748b;
+            --border: rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--main-font);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Modern Arka Plan Işığı */
+        body::before {
+            content: ''; position: fixed; top: -20%; left: -10%; width: 120%; height: 120%;
+            background: radial-gradient(circle at 50% 20%, rgba(var(--main-color), 0.12) 0%, transparent 50%);
+            z-index: -1; pointer-events: none;
+        }
+
+        h1, h2, h3 { font-weight: 600; letter-spacing: -0.5px; }
+        
+        /* SVG İkon Standartları */
+        .icon-svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+
+        /* BİLDİRİM */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--bg-panel); backdrop-filter: var(--backdrop-blur); border: 1px solid var(--border); color: var(--text-main); padding: 15px 20px; font-size: 14px; font-weight: 500; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); transform: translateX(120%); opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 12px; border-left: 4px solid var(--main-color); }
+        .toast.show { transform: translateX(0); opacity: 1; }
+
+        /* GİRİŞ EKRANI */
+        #auth-view { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); }
+        .auth-box { background: var(--bg-panel); border: 1px solid var(--border); padding: 45px; width: 100%; max-width: 450px; text-align: center; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+        .auth-tab { flex: 1; padding: 12px; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .auth-tab.active { color: var(--main-color); border-bottom: 2px solid var(--main-color); }
+
+        .brand-logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 25px; }
+        .brand-text { font-size: 26px; font-weight: 700; color: var(--text-main); letter-spacing: -1px; }
+
+        .form-control { width: 100%; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 14px 18px; font-size: 14px; font-family: var(--main-font); margin-bottom: 16px; outline: none; border-radius: 8px; transition: all 0.2s; }
+        .form-control:focus { border-color: var(--main-color); background: var(--bg-card-hover); box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.1); }
+        select.form-control option { background: var(--bg-dark); color: var(--text-main); }
+        
+        .btn-gamer { background: var(--main-color); color: #000; border: none; padding: 14px; width: 100%; font-size: 15px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-gamer:hover { background: var(--main-color-hover); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3); }
+
+        .divider { margin: 25px 0; color: var(--text-muted); font-size: 12px; display: flex; align-items: center; gap: 15px; text-transform: uppercase; font-weight: 600; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .google-auth-container { display: flex; justify-content: center; min-height: 44px; }
+
+        /* ANA SİTE ARAYÜZÜ HEADER */
+        #app-view { display: none; flex-direction: column; min-height: 100vh; z-index: 10; }
+        header { background: var(--bg-panel); backdrop-filter: var(--backdrop-blur); border-bottom: 1px solid var(--border); padding: 15px 30px; position: sticky; top: 0; z-index: 500; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        
+        .menu-toggle-btn { background: transparent; border: none; color: var(--text-main); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; }
+        .menu-toggle-btn:hover { background: var(--bg-card); color: var(--main-color); }
+        
+        /* CANLI ARAMA ÇUBUĞU */
+        .search-bar { flex: 1; max-width: 600px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; padding: 10px 20px; display: flex; align-items: center; gap: 12px; color: var(--text-muted); transition: all 0.3s; }
+        .search-bar:focus-within { border-color: var(--main-color); box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.1); background: var(--bg-dark); }
+        .search-bar input { background: transparent; border: none; color: var(--text-main); width: 100%; outline: none; font-family: var(--main-font); font-size: 14px; }
+        
+        .user-profile-btn { display: flex; align-items: center; gap: 12px; background: transparent; border: 1px solid var(--border); color: var(--text-main); cursor: pointer; padding: 6px 15px; border-radius: 30px; transition: all 0.2s; }
+        .user-profile-btn:hover { background: var(--bg-card-hover); border-color: var(--main-color); }
+        .up-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--main-color); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 14px; }
+
+        /* TAM EKRAN ÇİFT YÖNLÜ MENÜ */
+        .fullscreen-menu-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: flex; }
+        .fs-half { width: 50vw; height: 100vh; background: var(--bg-panel); backdrop-filter: var(--backdrop-blur); transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: auto; padding: 80px 80px; overflow-y: auto; }
+        
+        #fs-left { transform: translateX(-100%); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+        #fs-right { transform: translateX(100%); border-left: 1px solid var(--border); display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+        
+        .fullscreen-menu-wrapper.open #fs-left { transform: translateX(0); }
+        .fullscreen-menu-wrapper.open #fs-right { transform: translateX(0); }
+
+        .fs-close-btn { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 12px 30px; border-radius: 30px; font-weight: 600; font-size: 14px; cursor: pointer; pointer-events: auto; z-index: 10000; opacity: 0; transition: all 0.3s; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .fs-close-btn:hover { background: var(--main-color); color: #000; border-color: var(--main-color); }
+        .fullscreen-menu-wrapper.open .fs-close-btn { opacity: 1; }
+
+        .fs-title { color: var(--text-muted); font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 25px; letter-spacing: 2px; }
+        .fs-link { display: flex; align-items: center; gap: 15px; color: var(--text-main); font-size: 24px; font-weight: 600; text-decoration: none; margin-bottom: 20px; transition: all 0.2s; cursor: pointer; padding: 10px 20px; border-radius: 12px; }
+        .fs-link:hover, .fs-link.active { background: var(--bg-card-hover); color: var(--main-color); transform: scale(1.02); }
+
+        main { flex: 1; max-width: 1600px; width: 100%; margin: 0 auto; padding: 40px 30px; }
+        .page-section { display: none; animation: fadeIn 0.4s ease forwards; opacity: 0; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-title { font-size: 32px; font-weight: 700; margin-bottom: 30px; color: var(--text-main); letter-spacing: -1px; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 10px 20px; font-size: 15px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .tab-btn:hover { background: var(--bg-card-hover); color: var(--text-main); }
+        .tab-btn.active { color: var(--main-color); background: var(--bg-card); position: relative; font-weight: 600; border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -11px; left: 0; width: 100%; height: 3px; background: var(--main-color); }
+        .store-content { display: none; }
+        .store-content.active { display: block; }
+
+        /* KART TASARIMI */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); padding: 25px; border-radius: var(--border-radius); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; gap: 15px; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, rgba(var(--main-color), 0.1), transparent 70%); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); border-color: rgba(0, 210, 255, 0.3); }
+        .card:hover::before { opacity: 1; }
+        
+        .card-header { display: flex; align-items: center; gap: 15px; z-index: 1; }
+        .card-icon { width: 60px; height: 60px; background: var(--bg-dark); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); color: var(--main-color); }
+        .card-title-box { flex: 1; }
+        .card h3 { font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+        .card .company { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; flex-grow: 1; z-index: 1; }
+
+        .btn-action { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); padding: 10px 16px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; width: 100%; transition: all 0.2s; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; z-index: 1; }
+        .btn-action:hover { background: var(--bg-card-hover); color: var(--text-main); border-color: var(--text-muted); }
+        .btn-primary { background: var(--main-color); color: #000; border: none; }
+        .btn-primary:hover { background: var(--main-color-hover); color: #fff; }
+
+        /* YENİ: ANİMASYONLU UYGULAMA DETAY MODALI */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        
+        .modal-content { background: var(--bg-dark); border: 1px solid var(--border); width: 90%; max-width: 850px; border-radius: 20px; overflow: hidden; transform: scale(0.8) translateY(50px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 30px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; max-height: 90vh; }
+        .modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+        
+        .modal-hero { background: linear-gradient(135deg, var(--bg-panel), var(--bg-dark)); padding: 40px; display: flex; gap: 30px; align-items: center; border-bottom: 1px solid var(--border); position: relative; }
+        .modal-hero-icon { width: 100px; height: 100px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: center; color: var(--main-color); }
+        .modal-close { position: absolute; top: 20px; right: 20px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .modal-close:hover { background: #ff3366; border-color: #ff3366; color: #fff; }
+        
+        .modal-body { padding: 40px; overflow-y: auto; flex: 1; }
+        .modal-desc { color: var(--text-muted); font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
+        .modal-footer { padding: 20px 40px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 15px; }
+
+        /* AYARLAR KARTLARI (17 ÖZELLİK İÇİN) */
+        .settings-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 900px; }
+        .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border); }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-label { font-size: 15px; font-weight: 500; }
+        .settings-desc { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+        .settings-input { width: 300px; display: flex; gap: 10px; }
+        
+        /* Checkbox Switch Style */
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-card); border: 1px solid var(--border); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--main-color); border-color: var(--main-color); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: #fff; }
+
+        footer { padding: 30px; text-align: center; color: var(--text-muted); font-size: 14px; margin-top: auto; border-top: 1px solid var(--border); }
+        
+        /* Eski Tasarım Öğeleri Korundu */
+        .terminal-box { background: #000; border: 1px solid var(--border); padding: 20px; font-family: monospace; color: #0f0; border-radius: var(--border-radius); height: 300px; overflow-y: auto; }
+        .terminal-box div { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <!-- GİRİŞ EKRANI -->
+    <div id="auth-view">
+        <div class="auth-box">
+            <div class="brand-logo-container">
+                <!-- Telifsiz Yeni Modern Kutu / Infinity Logo SVG -->
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--main-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <div class="brand-text">BANPAN Store Go</div>
+            </div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-user" onclick="switchAuthTab('user')">Kullanıcı Girişi</div>
+                <div class="auth-tab" id="tab-dev" onclick="switchAuthTab('dev')">Geliştirici Paneli</div>
+            </div>
+
+            <!-- KULLANICI GİRİŞ FORMU -->
+            <form id="form-user" onsubmit="handleUserLogin(event)">
+                <input type="text" id="isim-input" class="form-control" placeholder="Adınız" required>
+                <input type="text" id="soyad-input" class="form-control" placeholder="Soyadınız" required>
+                <button type="submit" class="btn-gamer">
+                    <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    Oturum Aç
+                </button>
+                
+                <div class="divider">Veya Google ile devam et</div>
+                <div class="google-auth-container" id="google-btn-container">
+                    <div id="g_id_onload" data-client_id="283634710098-159sb0n0hppvp78hmdfovnb4bbtodcvo.apps.googleusercontent.com" data-callback="handleGoogleLoginResponse" data-auto_prompt="false"></div>
+                    <div class="g_id_signin" data-type="standard" data-theme="outline" data-size="large" data-text="signin_with"></div>
+                </div>
+            </form>
+
+            <!-- GELİŞTİRİCİ GİRİŞ FORMU -->
+            <form id="form-dev" style="display: none;" onsubmit="handleDevLogin(event)">
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Mağazaya modül yüklemek için doğrulama anahtarını girin.</p>
+                <input type="password" id="dev-password" class="form-control" placeholder="Geliştirici Şifresi (admin123)" required>
+                <button type="submit" class="btn-gamer" style="background: #e81123; color: #fff;">Yetkili Girişi Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TAM EKRAN ÇİFT YÖNLÜ MENÜ -->
+    <div class="fullscreen-menu-wrapper" id="fs-menu">
+        <button class="fs-close-btn" onclick="toggleMenu()">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Kapat
+        </button>
+        
+        <!-- SOL YARI: KEŞFET & KURUMSAL -->
+        <div class="fs-half" id="fs-left">
+            <div class="fs-title">Keşfet & Araçlar</div>
+            <a class="fs-link" onclick="switchPage('tools')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> Araç Kutusu</a>
+            <a class="fs-link" onclick="switchPage('community')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Global Topluluk</a>
+            <a class="fs-link" onclick="switchPage('academy')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Siber Akademi</a>
+            <a class="fs-link" onclick="switchPage('proxy')"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Ağ Sanallaştırma (VPN)</a>
+            
+            <div style="height: 40px;"></div>
+            <div class="fs-title">Kurumsal</div>
+            <a class="fs-link" style="font-size: 18px;" onclick="switchPage('docs')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Dökümantasyon</a>
+            <a class="fs-link" style="font-size: 18px;" onclick="switchPage('company')"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> Şirket Profili</a>
+            <a class="fs-link" style="font-size: 18px;" onclick="switchPage('privacy')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Gizlilik Koşulları</a>
+            <a class="fs-link" style="font-size: 18px;" onclick="switchPage('support')"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Destek & Yardım</a>
+        </div>
+        
+        <!-- SAĞ YARI: STORE & HESAP -->
+        <div class="fs-half" id="fs-right">
+            <div class="fs-title">Mağaza İşlemleri</div>
+            <a class="fs-link active" onclick="switchPage('home')"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Store Vitrini</a>
+            <a class="fs-link" onclick="switchPage('library')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Kütüphane (İndir)</a>
+            <a class="fs-link" onclick="switchPage('market')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Karaborsa (Market)</a>
+            <a class="fs-link" onclick="switchPage('logs')"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg> İşlem Logları</a>
+            
+            <div style="height: 40px;"></div>
+            <div class="fs-title">Hesap Yönetimi</div>
+            <a class="fs-link" style="font-size: 18px; color: var(--main-color);" onclick="switchPage('profile')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Ayarlar ve Profil</a>
+            <a class="fs-link" id="nav-dev" style="display: none; font-size: 18px; color: #ffb900;" onclick="switchPage('developer')"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg> Geliştirici Paneli</a>
+            <a class="fs-link" style="font-size: 18px; color: #ff5555;" onclick="logout()"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Oturumu Kapat</a>
+        </div>
+    </div>
+
+    <!-- ANA ARAYÜZ HEADER -->
+    <div id="app-view">
+        <header>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <button class="menu-toggle-btn" onclick="toggleMenu()">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <div class="brand-logo-container" style="margin: 0; cursor:pointer;" onclick="switchPage('home')">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--main-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <div class="brand-text" style="font-size: 18px;">BANPAN <span style="font-weight: 400; opacity:0.8;">Store Go</span></div>
+                </div>
+            </div>
+            
+            <!-- CANLI ARAMA ÇUBUĞU -->
+            <div class="search-bar">
+                <svg class="icon-svg" style="width:18px; height:18px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" placeholder="Uygulamaları, araçları ve modülleri arayın..." onkeyup="handleSearch(this.value)">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="menu-toggle-btn" onclick="toggleTheme()" title="Temayı Değiştir">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <button class="user-profile-btn" onclick="switchPage('profile')">
+                    <div class="up-avatar" id="header-avatar">U</div>
+                    <span id="header-name" style="font-size: 13px; font-weight: 600;">Kullanıcı</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- 1. MAĞAZA VİTRİNİ -->
+            <div id="home" class="page-section active">
+                <h1 class="section-title">Vitrin (Storefront)</h1>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" id="btn-windows" onclick="switchStoreTab('windows')">
+                        <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> Windows Araçları
+                    </button>
+                    <button class="tab-btn" id="btn-android" onclick="switchStoreTab('android')">
+                        <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Mobil Eklentiler
+                    </button>
+                    <button class="tab-btn" id="btn-vip" onclick="switchStoreTab('vip')">
+                        <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> VIP Erişim
+                    </button>
+                </div>
+                
+                <div id="store-windows" class="store-content active">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+                                <div class="card-title-box">
+                                    <h3>BANPAN Core Motoru</h3>
+                                    <div class="company">Banpan Gaming Inc.</div>
+                                </div>
+                            </div>
+                            <p>Sıfır gecikme odaklı, donanımı sömürmeyen ana yönetim merkezi.</p>
+                            <button class="btn-action btn-primary" onclick="openAppModal('BANPAN Core Motoru', 'Banpan Gaming Inc.', 'İşletim sisteminizin çekirdeğine enjekte edilen, sıfır gecikme (0ms latency) odaklı yönetim aracı. İşlemci yükünü azaltır, arka plan servislerini durdurur ve oyun içi FPS artışı sağlar. 256-bit şifreleme içerir.', '<svg class=\'icon-svg\' style=\'width:48px;height:48px;\' viewBox=\'0 0 24 24\'><circle cx=\'12\' cy=\'12\' r=\'3\'></circle><path d=\'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\'></path></svg>')">Detaylı Bilgi</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon" style="color: #00e676;"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                                <div class="card-title-box">
+                                    <h3>Kuantum Şifreleme</h3>
+                                    <div class="company">Banpan Gaming Inc.</div>
+                                </div>
+                            </div>
+                            <p>Oyunlarda paket kayıplarını önler ve IP tespiti engeller.</p>
+                            <button class="btn-action btn-primary" onclick="openAppModal('Kuantum Şifreleme', 'Banpan Gaming Inc.', 'Ağ trafiğini milisaniyeler içerisinde AES-256 mantığıyla yeniden paketler. Oyun sunucuları ile aranızdaki ping dalgalanmalarını (jitter) sıfıra indirir ve DDOS saldırılarına karşı kalkan oluşturur.', '<svg class=\'icon-svg\' style=\'width:48px;height:48px;\' viewBox=\'0 0 24 24\'><path d=\'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\'></path></svg>')">Detaylı Bilgi</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon" style="color: #ff3366;"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                                <div class="card-title-box">
+                                    <h3>Gelişmiş Spoofer</h3>
+                                    <div class="company">Banpan Security</div>
+                                </div>
+                            </div>
+                            <p>Donanım kimliklerinizi sanal olarak maskeler. Banları aşmanızı sağlar.</p>
+                            <button class="btn-action btn-primary" onclick="openAppModal('Gelişmiş Spoofer', 'Banpan Security', 'Bilgisayarınızın Anakart (Motherboard), MAC adresi, Disk (HDD/SSD) seri numaralarını RAM üzerinden maskeler. Cihaz yasaklamalarını donanım değiştirmeden aşmanıza olanak tanır.', '<svg class=\'icon-svg\' style=\'width:48px;height:48px;\' viewBox=\'0 0 24 24\'><rect x=\'3\' y=\'11\' width=\'18\' height=\'11\' rx=\'2\' ry=\'2\'></rect><path d=\'M7 11V7a5 5 0 0 1 10 0v4\'></path></svg>')">Detaylı Bilgi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="store-android" class="store-content">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-icon" style="color: #ff9900;"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg></div>
+                                <div class="card-title-box">
+                                    <h3>Mobile Commander</h3>
+                                    <div class="company">Banpan Mobile</div>
+                                </div>
+                            </div>
+                            <p>Akıllı telefonlardan tam sistem kontrolü sağlayan uzaktan yönetim aracı.</p>
+                            <button class="btn-action btn-primary" onclick="openAppModal('Mobile Commander', 'Banpan Mobile', 'Android cihazınızı bir hacker paneline çevirir. Uzaktan bilgisayarınıza komut gönderebilir, görev yöneticisine müdahale edebilir ve log kayıtlarını canlı olarak akıllı telefonunuzdan izleyebilirsiniz.', '<svg class=\'icon-svg\' style=\'width:48px;height:48px;\' viewBox=\'0 0 24 24\'><rect x=\'5\' y=\'2\' width=\'14\' height=\'20\' rx=\'2\' ry=\'2\'></rect><line x1=\'12\' y1=\'18\' x2=\'12.01\' y2=\'18\'></line></svg>')">Detaylı Bilgi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="store-vip" class="store-content">
+                    <div class="grid">
+                        <div class="card" style="border: 1px solid #ffb900;">
+                            <div class="card-header">
+                                <div class="card-icon" style="color: #ffb900;"><svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
+                                <div class="card-title-box">
+                                    <h3>Gölge Protokolü (V.1)</h3>
+                                    <div class="company">VIP Only</div>
+                                </div>
+                            </div>
+                            <p>Yalnızca onaylı üyelere açık, sistem kayıtlarını temizleyen araç.</p>
+                            <button class="btn-action" style="color: #ffb900;" onclick="showToast('Bu araca erişim için VIP Yetkisi gereklidir.')">Erişim İste</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. KÜTÜPHANE (İNDİRMELER) -->
+            <div id="library" class="page-section">
+                <h1 class="section-title">Kütüphanem</h1>
+                <p style="margin-bottom: 30px; color: var(--text-muted);">Edindiğiniz uygulamaları cihazınıza kurun.</p>
+                <div id="library-grid" class="grid"></div>
+                <div id="empty-library" style="text-align: center; padding: 80px 20px; background: var(--bg-card); border-radius: var(--border-radius); border: 1px dashed var(--border);">
+                    <div style="margin-bottom: 15px;"><svg class="icon-svg" style="width:64px;height:64px; color:var(--text-muted);" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
+                    <h3 style="margin-bottom: 10px; color: var(--text-main);">Kütüphaneniz Boş</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Store'dan edindiğiniz modüller burada görünür.</p>
+                    <button class="btn-action btn-primary" style="width: auto;" onclick="switchPage('home')">Vitrine Git</button>
+                </div>
+            </div>
+
+            <!-- 3. HESAP AYARLARI (Genişletilmiş 17 Özellik) -->
+            <div id="profile" class="page-section">
+                <h1 class="section-title">Ayarlar ve Profil</h1>
+                <div class="settings-grid">
+                    
+                    <div class="card">
+                        <h3>1. Kişisel Bilgiler</h3>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Gerçek Ad & Soyad</div></div>
+                            <div class="settings-input">
+                                <input type="text" id="edit-ad" class="form-control" style="margin:0;" placeholder="Ad">
+                                <input type="text" id="edit-soyad" class="form-control" style="margin:0;" placeholder="Soyad">
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Kullanıcı Adı (Rumuz)</div></div>
+                            <div class="settings-input"><input type="text" id="edit-kodadi" class="form-control" style="margin:0;"></div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">İletişim E-Postası</div></div>
+                            <div class="settings-input"><input type="email" id="edit-email" class="form-control" style="margin:0;"></div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Bölge / Dil</div></div>
+                            <div class="settings-input" style="flex-direction: column;">
+                                <select id="edit-bolge" class="form-control" style="margin:0;"><option value="TR">Türkiye</option><option value="US">United States</option></select>
+                                <select id="theme-language" class="form-control" style="margin:0;"><option value="tr">Türkçe</option><option value="en">English</option></select>
+                            </div>
+                        </div>
+                        <div class="settings-row" style="align-items: flex-start;">
+                            <div><div class="settings-label">Hakkımda</div></div>
+                            <div class="settings-input"><textarea id="edit-hakkimda" class="form-control" rows="2" style="margin:0; width:100%;"></textarea></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>2. Bağlantılar & Güvenlik</h3>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Discord / GitHub</div></div>
+                            <div class="settings-input" style="flex-direction: column;">
+                                <input type="text" id="edit-discord" class="form-control" style="margin:0;" placeholder="Discord ID">
+                                <input type="text" id="edit-github" class="form-control" style="margin:0;" placeholder="GitHub Link">
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Profil Görünürlüğü</div></div>
+                            <div class="settings-input"><select id="edit-gizlilik" class="form-control" style="margin:0;"><option value="acik">Herkese Açık</option><option value="hayalet">Gizli (Hayalet)</option></select></div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">İki Adımlı Doğrulama (2FA)</div></div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edit-2fa">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Şifre Değiştir</div></div>
+                            <div class="settings-input" style="flex-direction:column;">
+                                <input type="password" id="edit-oldpass" class="form-control" style="margin:0;" placeholder="Mevcut Şifre">
+                                <input type="password" id="edit-newpass" class="form-control" style="margin:0;" placeholder="Yeni Şifre">
+                                <button class="btn-action" onclick="changePassword()">Güncelle</button>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Oturum Yönetimi</div></div>
+                            <div><button class="btn-action" style="color: #ff5555; border-color: #ff5555;" onclick="closeOtherSessions()">Diğerlerini Kapat</button></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>3. Kişiselleştirme & Sistem Davranışı</h3>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Vurgu Rengi</div></div>
+                            <div><input type="color" id="theme-color-picker" value="#00d2ff" style="width: 50px; height: 30px; border: none; background: transparent; cursor: pointer;"></div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Pencere Köşeleri</div></div>
+                            <div class="settings-input"><select id="theme-border-style" class="form-control" style="margin:0;"><option value="12px">Modern (Yuvarlak)</option><option value="0px">Klasik (Keskin)</option><option value="24px">Kapsül (Oval)</option></select></div>
+                        </div>
+                        <div class="settings-row">
+                            <div><div class="settings-label">Sistem Fontu</div></div>
+                            <div class="settings-input"><select id="theme-font-style" class="form-control" style="margin:0;"><option value="'Inter', sans-serif">Inter (Modern)</option><option value="'Orbitron', sans-serif">Orbitron (Siber)</option></select></div>
+                        </div>
+                        
+                        <!-- YENİ EKLENEN 3 ÖZELLİK (15, 16, 17) -->
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-label">Otomatik Güncellemeler</div>
+                                <div class="settings-desc">Modüller arkaplanda güncellenir.</div>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="set-autoupdate" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-label">Analitik ve Veri Paylaşımı</div>
+                                <div class="settings-desc">Hataları raporlamak için anonim veri gönderir.</div>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="set-telemetry">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-label">Çevrimdışı Önbellek (Offline Mode)</div>
+                                <div class="settings-desc">İnternet yokken kütüphaneye erişim sağlar.</div>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="set-offline" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-row">
+                            <div><div class="settings-label">Arayüz Bildirim Sesleri</div></div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="theme-sound" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-gamer" style="margin-top: 10px;" onclick="updateAllProfileSettings()">Tüm 17 Ayarı Kaydet ve Uygula</button>
+                </div>
+            </div>
+
+            <!-- 4. YARDIM DESTEK (FormSubmit) -->
+            <div id="support" class="page-section">
+                <h1 class="section-title">Destek Merkezi</h1>
+                <div class="card" style="max-width: 600px;">
+                    <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 14px;">Lütfen sorununuzu açıklayın. Size geri dönüş yapabilmemiz için geçerli bir e-posta adresi girin.</p>
+                    
+                    <form action="https://formsubmit.co/turboxdark@gmail.com" method="POST" target="_blank">
+                        <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_subject" value="BANPAN Store Go - Yeni Destek Talebi!">
+                        
+                        <label style="display:block; margin-bottom:5px; font-size:14px; font-weight:500;">E-Posta Adresiniz (Zorunlu)</label>
+                        <input type="email" name="email" class="form-control" placeholder="ornek@mail.com" required>
+                        
+                        <label style="display:block; margin-bottom:5px; font-size:14px; font-weight:500;">Konu Başlığı</label>
+                        <input type="text" name="konu" class="form-control" placeholder="Neyle ilgili destek istiyorsunuz?" required>
+                        
+                        <label style="display:block; margin-bottom:5px; font-size:14px; font-weight:500;">Mesajınız</label>
+                        <textarea name="mesaj" class="form-control" placeholder="Detayları buraya yazın..." required style="min-height: 120px; resize:vertical;"></textarea>
+                        
+                        <button type="submit" class="btn-gamer">Talebi Gönder</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 5. GELİŞTİRİCİ PANELİ -->
+            <div id="developer" class="page-section">
+                <h1 class="section-title">Geliştirici Merkezi</h1>
+                <div class="settings-grid">
+                    <div class="card">
+                        <h3 style="color: #ff3366;">Mağazaya Yeni Modül Yükle</h3>
+                        <p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted);">Hoş geldin Yetkili. Uygulama paketinizi (.exe, .apk) sisteme aktarın.</p>
+                        
+                        <div style="background: rgba(0,0,0,0.2); border: 1px dashed var(--text-muted); padding: 40px; text-align: center; border-radius: var(--border-radius); margin-bottom: 15px;">
+                            <input type="file" id="fileUploader" style="display: none;" onchange="handleFileUpload(event)">
+                            <label for="fileUploader" class="btn-action" style="cursor: pointer; width: auto; display: inline-block;">
+                                <svg class="icon-svg" style="display:inline; vertical-align:middle; margin-right:5px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Dosyaya Gözat
+                            </label>
+                            <div id="fileNameDisplay" style="margin-top: 15px; font-size: 14px; color: var(--text-main);">Seçili dosya yok.</div>
+                        </div>
+                        <button class="btn-gamer" style="background: #ff3366; color:#fff;" onclick="uploadFile()">Paketi Sunucuya Yükle</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DİĞER SAYFALAR -->
+            <div id="logs" class="page-section">
+                <h1 class="section-title">Sistem İşlem Logları</h1>
+                <div class="terminal-box">
+                    <div>[SYSTEM] Başlatma sekansı doğrulandı.</div>
+                    <div>[NETWORK] Port 8080 şifreli olarak dinleniyor.</div>
+                    <div>[PROXY] Trafik Node 4 (RU) üzerinden yönlendirildi.</div>
+                    <div>[KERNEL] Bellek bütünlüğü %100 sağlandı.</div>
+                    <div>[SYSTEM] Yeni komutlar bekleniyor... <span style="animation:pulse 1s infinite">_</span></div>
+                </div>
+            </div>
+
+            <div id="market" class="page-section">
+                <h1 class="section-title">Karaborsa (Özel Erişim)</h1>
+                <div class="grid">
+                    <div class="card" style="border-color:#ff3366">
+                        <h3 style="color:#ff3366">Zero-Day Exploit V9</h3>
+                        <p>Kernel seviyesinde bellek manipülasyon modülü. Sadece onaylı kripto cüzdanlarıyla satın alınabilir.</p>
+                        <button class="btn-action" onclick="showToast('Kripto cüzdanı bulunamadı.')">Satın Al (0.05 BTC)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tools" class="page-section">
+                <h1 class="section-title">Araç Kutusu</h1>
+                <div class="grid">
+                    <div class="card">
+                        <h3 style="color:#00d2ff">Anlık Ping Radarı</h3>
+                        <p>Sunucularla olan paket alışverişini saliselik ölçer.</p>
+                        <button class="btn-action" onclick="showToast('Radar başlatılıyor...')">Taramayı Başlat</button>
+                    </div>
+                    <div class="card">
+                        <h3 style="color:#00e676">Sistem Çöp Temizleyici</h3>
+                        <p>Geçici logları ve hata raporlarını silerek disk hızını artırır.</p>
+                        <button class="btn-action" onclick="showToast('Loglar silindi.')">Temizle</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="community" class="page-section">
+                <h1 class="section-title">Global Topluluk</h1>
+                <div class="card" style="max-width:900px;">
+                    <h3>Operasyon Odası</h3>
+                    <p style="margin-bottom: 20px;">Dünyanın dört bir yanındaki kullanıcılarla iletişim kurun.</p>
+                    <div class="terminal-box" style="height: 250px; background: rgba(0,0,0,0.3); border: 1px solid var(--border);">
+                        <div style="color: var(--text-muted);">Sohbet odasına bağlandınız...</div>
+                        <div style="color: #ff3366;">[Admin] RK: Sunucu bakımı tamamlandı.</div>
+                        <div style="color: #00d2ff;">[User] Ghost99: Yeni modüller ne zaman gelir?</div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top: 15px;">
+                        <input type="text" class="form-control" style="margin:0;" placeholder="Mesajınız...">
+                        <button class="btn-primary" style="padding: 0 20px; border-radius: 8px; border:none;" onclick="showToast('Mesaj iletildi.')">Gönder</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="academy" class="page-section">
+                <h1 class="section-title">Siber Akademi</h1>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Bellek Analizi 101</h3>
+                        <p>x64dbg ve bellek adreslerini okuma temel eğitimi.</p>
+                        <button class="btn-action" onclick="showToast('Eğitime bağlanılıyor...')">Eğitime Başla</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="proxy" class="page-section">
+                <h1 class="section-title">Ağ Sanallaştırma</h1>
+                <div class="card">
+                    <h3>Onion Router Nodes</h3>
+                    <p>Verinizi 3 farklı ülkedeki düğüm noktasından geçirerek takibi imkansız kılar.</p>
+                    <button class="btn-action btn-primary" onclick="showToast('Tor Ağına Bağlanıldı (Node: CH).')">Bağlan</button>
+                </div>
+            </div>
+
+            <div id="docs" class="page-section">
+                <h1 class="section-title">Dökümantasyon</h1>
+                <div class="card">
+                    <h3 style="color:var(--main-color);">Ring 0 (Kernel) Manipülasyonu</h3>
+                    <p>Windows mimarisinde, sisteme sahte bir sürücü yükleyerek belleği okuma yetkisi alma kılavuzu.</p>
+                </div>
+            </div>
+
+            <div id="company" class="page-section">
+                <h1 class="section-title">Şirket Profili</h1>
+                <div class="card">
+                    <h3 style="color:var(--main-color);">BANPAN Store Go INC.</h3>
+                    <p>Dijital dünyada sıfır gecikme ve maksimum güvenlik parolasıyla yola çıkmış teknoloji laboratuvarıyız.</p>
+                </div>
+            </div>
+
+            <div id="privacy" class="page-section">
+                <h1 class="section-title">Gizlilik ve Güvenlik</h1>
+                <div class="card">
+                    <h3 style="color:var(--main-color);">Veri Güvenliği İlkesi</h3>
+                    <p>Verileriniz cihazınızda yerel (Local Storage) olarak tutulur. 3. şahıslara veri aktarımı kapalıdır.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ANİMASYONLU UYGULAMA DETAY EKRANI (MODAL) -->
+    <div id="app-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAppModal()">
+                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="modal-hero">
+                <div id="modal-icon" class="modal-hero-icon"></div>
+                <div>
+                    <h1 id="modal-app-title" style="font-size: 28px; margin-bottom: 5px;">App Title</h1>
+                    <span id="modal-app-dev" style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Developer</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin-bottom: 15px;">Uygulama Hakkında</h3>
+                <p id="modal-app-desc" class="modal-desc">Description</p>
+                
+                <div style="display:flex; gap:20px; border-top:1px solid var(--border); padding-top:20px;">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted);">Platform</div>
+                        <div style="font-weight:600;">Windows / Android</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted);">Sürüm</div>
+                        <div style="font-weight:600;">v4.8.2 Stable</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:var(--text-muted);">Boyut</div>
+                        <div style="font-weight:600;">18 MB</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" style="width:auto;" onclick="closeAppModal()">İptal</button>
+                <button class="btn-gamer" id="modal-action-btn" style="width:auto; padding: 10px 30px;">
+                    <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Hemen İndir
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const b$ = e => document.getElementById(e);
+    const q$ = e => document.querySelectorAll(e);
+
+    // BİLDİRİM
+    window.showToast = function(e) {
+        const t = b$("toast-container"), n = document.createElement("div");
+        n.className = "toast"; 
+        n.innerHTML = `<svg class="icon-svg" style="color:var(--main-color);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> <div>${e}</div>`; 
+        t.appendChild(n);
+        setTimeout(() => n.classList.add("show"), 10);
+        setTimeout(() => { n.classList.remove("show"); setTimeout(() => n.remove(), 400); }, 3500);
+        if(localStorage.getItem("bp_sound") !== "false") console.log("Notify Sound Beep!"); 
+    };
+
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('banpan_theme', isLight ? 'light' : 'dark');
+        showToast(isLight ? "Açık tema (Gündüz) uygulandı." : "Koyu tema (Gece) uygulandı.");
+    };
+
+    // TAM EKRAN MENÜ
+    window.toggleMenu = function() { b$('fs-menu').classList.toggle('open'); };
+
+    // CANLI ARAMA (REAL-TIME SEARCH)
+    window.handleSearch = function(val) {
+        const q = val.toLowerCase();
+        // Ana sayfadaki tüm kartları bul
+        const cards = document.querySelectorAll('#home .card');
+        let matchCount = 0;
+        cards.forEach(card => {
+            const title = card.querySelector('h3').innerText.toLowerCase();
+            const desc = card.querySelector('p').innerText.toLowerCase();
+            if(title.includes(q) || desc.includes(q)) {
+                card.style.display = 'flex';
+                matchCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    };
+
+    // ANİMASYONLU DETAY MODALI (YENİ)
+    window.openAppModal = function(title, dev, desc, iconSvg) {
+        b$("modal-app-title").innerText = title;
+        b$("modal-app-dev").innerText = dev;
+        b$("modal-app-desc").innerText = desc;
+        b$("modal-icon").innerHTML = iconSvg;
+        
+        // Modal butonuna aksiyon ata
+        const btn = b$("modal-action-btn");
+        btn.onclick = function() {
+            addToLibrary(title);
+            closeAppModal();
+        };
+
+        b$("app-modal").classList.add("show");
+    };
+    
+    window.closeAppModal = function() { b$("app-modal").classList.remove("show"); };
+
+    // GİRİŞ EKRANI TABS
+    window.switchAuthTab = function(type) {
+        if(type === 'user') {
+            b$('tab-user').classList.add('active'); b$('tab-dev').classList.remove('active');
+            b$('form-user').style.display = 'block'; b$('form-dev').style.display = 'none';
+        } else {
+            b$('tab-dev').classList.add('active'); b$('tab-user').classList.remove('active');
+            b$('form-dev').style.display = 'block'; b$('form-user').style.display = 'none';
+        }
+    };
+
+    window.handleUserLogin = function(e) {
+        e.preventDefault();
+        const ad = b$("isim-input").value, soyad = b$("soyad-input").value;
+        if(ad.trim() === "" || soyad.trim() === "") return;
+        localStorage.setItem("is_developer", "false");
+        localStorage.setItem("bp_ad", ad); localStorage.setItem("bp_soyad", soyad);
+        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", ad);
+        completeLogin();
+    };
+
+    window.handleDevLogin = function(e) {
+        e.preventDefault();
+        const pass = b$("dev-password").value;
+        if(pass === "admin123") {
+            localStorage.setItem("is_developer", "true");
+            localStorage.setItem("bp_ad", "Admin"); localStorage.setItem("bp_soyad", "Developer");
+            localStorage.setItem("bp_kodadi", "Master_Dev");
+            completeLogin();
+        } else { showToast("Hatalı geliştirici şifresi!"); }
+    };
+
+    window.handleGoogleLoginResponse = function() {
+        localStorage.setItem("is_developer", "false");
+        localStorage.setItem("bp_ad", "Windows"); localStorage.setItem("bp_soyad", "Kullanıcısı");
+        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "Google Hesabı");
+        completeLogin();
+    };
+
+    window.completeLogin = function() {
+        b$("auth-view").style.display = "none"; b$("app-view").style.display = "flex";
+        loadProfileData(); renderLibrary();
+        
+        if(localStorage.getItem("is_developer") === "true") {
+            b$("nav-dev").style.display = "flex"; showToast("Geliştirici Paneline hoş geldin.");
+        } else {
+            b$("nav-dev").style.display = "none"; showToast("Mağazaya giriş yapıldı.");
+        }
+    };
+
+    window.logout = function() {
+        b$("app-view").style.display = "none"; b$("auth-view").style.display = "flex";
+        if(b$("form-user")) b$("form-user").reset(); if(b$("form-dev")) b$("form-dev").reset();
+        b$('fs-menu').classList.remove('open'); showToast("Çıkış yapıldı.");
+    };
+
+    // PROFİL YÜKLE / KAYDET (17 Ayar)
+    window.loadProfileData = function() {
+        const ad = localStorage.getItem("bp_ad") || ""; const soyad = localStorage.getItem("bp_soyad") || "";
+        const kodadi = localStorage.getItem("bp_kodadi") || (ad + " " + soyad);
+        
+        if(b$("header-name")) b$("header-name").innerText = kodadi;
+        if(b$("header-avatar") && kodadi.length > 0) b$("header-avatar").innerText = kodadi.charAt(0).toUpperCase();
+
+        b$("edit-ad").value = ad; b$("edit-soyad").value = soyad; b$("edit-kodadi").value = kodadi;
+        b$("edit-email").value = localStorage.getItem("bp_email") || "";
+        b$("edit-bolge").value = localStorage.getItem("bp_bolge") || "TR";
+        b$("edit-hakkimda").value = localStorage.getItem("bp_hakkimda") || "";
+        b$("edit-discord").value = localStorage.getItem("bp_discord") || "";
+        b$("edit-github").value = localStorage.getItem("bp_github") || "";
+        b$("edit-gizlilik").value = localStorage.getItem("bp_gizlilik") || "acik";
+        
+        b$("edit-2fa").checked = localStorage.getItem("bp_2fa") === "true";
+        b$("theme-sound").checked = localStorage.getItem("bp_sound") !== "false";
+        
+        // Yeni 3 ayar
+        b$("set-autoupdate").checked = localStorage.getItem("bp_autoupdate") !== "false";
+        b$("set-telemetry").checked = localStorage.getItem("bp_telemetry") === "true";
+        b$("set-offline").checked = localStorage.getItem("bp_offline") !== "false";
+
+        b$("theme-language").value = localStorage.getItem("bp_lang") || "tr";
+        b$("theme-font-style").value = localStorage.getItem("bp_font") || "'Inter', sans-serif";
+        document.documentElement.style.setProperty("--main-font", b$("theme-font-style").value);
+    };
+
+    window.updateAllProfileSettings = function() {
+        localStorage.setItem("bp_ad", b$("edit-ad").value); localStorage.setItem("bp_soyad", b$("edit-soyad").value);
+        localStorage.setItem("bp_kodadi", b$("edit-kodadi").value); localStorage.setItem("bp_email", b$("edit-email").value);
+        localStorage.setItem("bp_bolge", b$("edit-bolge").value); localStorage.setItem("bp_hakkimda", b$("edit-hakkimda").value);
+        localStorage.setItem("bp_discord", b$("edit-discord").value); localStorage.setItem("bp_github", b$("edit-github").value);
+        localStorage.setItem("bp_gizlilik", b$("edit-gizlilik").value); 
+        
+        localStorage.setItem("bp_2fa", b$("edit-2fa").checked);
+        localStorage.setItem("bp_sound", b$("theme-sound").checked);
+        localStorage.setItem("bp_autoupdate", b$("set-autoupdate").checked);
+        localStorage.setItem("bp_telemetry", b$("set-telemetry").checked);
+        localStorage.setItem("bp_offline", b$("set-offline").checked);
+
+        localStorage.setItem("bp_lang", b$("theme-language").value);
+        localStorage.setItem("bp_font", b$("theme-font-style").value); 
+        
+        const newColor = b$("theme-color-picker").value, newBorder = b$("theme-border-style").value;
+        document.documentElement.style.setProperty("--main-color", newColor); document.documentElement.style.setProperty("--border-radius", newBorder);
+        localStorage.setItem("banpan_theme_color", newColor); localStorage.setItem("banpan_theme_border", newBorder);
+
+        loadProfileData(); showToast("Tüm 17 ayar başarıyla kaydedildi.");
+    };
+
+    window.changePassword = function() {
+        if(b$("edit-oldpass").value === "" || b$("edit-newpass").value === "") return;
+        b$("edit-oldpass").value = ""; b$("edit-newpass").value = ""; showToast("Şifre güncellendi.");
+    };
+    window.closeOtherSessions = function() { showToast("Cihazların bağlantısı kesildi."); };
+
+    let selectedFile = null;
+    window.handleFileUpload = function(event) {
+        selectedFile = event.target.files[0];
+        if(selectedFile) b$("fileNameDisplay").innerText = "Seçilen: " + selectedFile.name;
+    };
+    window.uploadFile = function() {
+        if(!selectedFile) { showToast("Dosya seçmelisiniz."); return; }
+        showToast("Sunucuya aktarılıyor...");
+        setTimeout(() => { showToast("Paket Mağazaya Yüklendi."); b$("fileNameDisplay").innerText = "Seçili dosya yok."; b$("fileUploader").value = ""; selectedFile = null; }, 1500);
+    };
+
+    window.switchPage = function(e) {
+        q$(".page-section").forEach(el => el.classList.remove("active"));
+        b$(e).classList.add("active");
+        q$(".nav-link").forEach(el => el.classList.remove("active"));
+        q$(".fs-link").forEach(el => el.classList.remove("active"));
+        if (window.event && window.event.currentTarget && !window.event.currentTarget.classList.contains("user-profile-btn")) { 
+            window.event.currentTarget.classList.add("active"); 
+        }
+        b$('fs-menu').classList.remove('open');
+        window.scrollTo(0, 0);
+    };
+    
+    window.switchStoreTab = function(e) {
+        q$(".tab-btn").forEach(el => el.classList.remove("active")); b$("btn-" + e).classList.add("active");
+        q$(".store-content").forEach(el => el.classList.remove("active")); b$("store-" + e).classList.add("active");
+    };
+
+    // KÜTÜPHANE VE GERÇEK İNDİRME
+    window.getLibraryData = function() { return JSON.parse(localStorage.getItem("bp_lib")) || []; };
+    window.addToLibrary = function(e) {
+        let a = getLibraryData();
+        if (a.some(t => t.name === e)) {
+            showToast("Bu uygulamaya zaten sahipsiniz.");
+            realDownload(e);
+            return;
+        }
+        a.push({ name: e }); localStorage.setItem("bp_lib", JSON.stringify(a));
+        showToast(e + " kütüphaneye eklendi, indirme başlıyor."); 
+        renderLibrary();
+        realDownload(e);
+    };
+    window.realDownload = function(fileName) {
+        const content = "BANPAN Store Go - Uygulama Paketi\nApp: " + fileName + "\nUser: " + (localStorage.getItem("bp_kodadi") || "Guest") + "\nDate: " + new Date().toLocaleString();
+        const blob = new Blob([content], { type: 'text/plain' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = fileName.replace(/\s+/g, '_') + '.txt';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    window.renderLibrary = function() {
+        const e = getLibraryData(), t = b$("library-grid"), n = b$("empty-library");
+        t.innerHTML = "";
+        if (0 === e.length) { t.style.display = "none"; n.style.display = "block"; return; }
+        t.style.display = "grid"; n.style.display = "none";
+        e.forEach(item => {
+            t.insertAdjacentHTML("beforeend", `
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="color: var(--main-color);"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+                    <div class="card-title-box">
+                        <h3>${item.name}</h3>
+                        <div class="company" style="color:#00e676;">Sahiplik Doğrulandı</div>
+                    </div>
+                </div>
+                <button class="btn-action btn-primary" style="margin-top: 15px;" onclick="realDownload('${item.name}')">Yeniden Yükle</button>
+            </div>`);
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if(localStorage.getItem('banpan_theme') === 'light') document.body.classList.add('light-theme');
+        const c = localStorage.getItem("banpan_theme_color") || "#00d2ff";
+        const border = localStorage.getItem("banpan_theme_border") || "12px";
+        document.documentElement.style.setProperty("--main-color", c);
+        document.documentElement.style.setProperty("--border-radius", border);
+        if(b$("theme-color-picker")) b$("theme-color-picker").value = c;
+        if(b$("theme-border-style")) b$("theme-border-style").value = border;
+
+        const gsiScript = document.createElement('script'); gsiScript.src = 'https://accounts.google.com/gsi/client'; gsiScript.async = true; gsiScript.defer = true;
+        gsiScript.onload = function() {
+            if (typeof google !== 'undefined') {
+                google.accounts.id.initialize({ client_id: "283634710098-159sb0n0hppvp78hmdfovnb4bbtodcvo.apps.googleusercontent.com", callback: window.handleGoogleLoginResponse });
+                google.accounts.id.renderButton(b$("google-btn-container"), { theme: "outline", size: "large", type: "standard", text: "signin_with" });
+            }
+        };
+        document.body.appendChild(gsiScript);
+    });
+</script>
+</body>
+</html>
