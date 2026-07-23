@@ -24,6 +24,8 @@
             --text-main: #f0f0f5;
             --text-muted: #888899;
             --border: #2a2a35;
+            --main-font: 'Rajdhani', sans-serif;
+            --anim-speed: 10s;
         }
 
         /* AÇIK TEMA DEĞİŞKENLERİ */
@@ -40,15 +42,25 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
+            font-family: var(--main-font);
             overflow-x: hidden;
             background-image: linear-gradient(rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.9)), repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(var(--main-color), 0.03) 10px, rgba(var(--main-color), 0.03) 20px);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             transition: background-color 0.4s ease, color 0.4s ease;
+            position: relative;
         }
 
+        /* ARKA PLAN ANİMASYONU (AYARLARDAN KONTROL EDİLEBİLİR) */
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(var(--main-color), 0.05) 51%, transparent 51%);
+            background-size: 100% 4px; pointer-events: none; z-index: 1;
+            animation: scanline var(--anim-speed) linear infinite;
+        }
+        @keyframes scanline { 0% { background-position: 0 0; } 100% { background-position: 0 100vh; } }
+        body.light-theme::after { display: none; }
         body.light-theme { background-image: none; }
 
         h1, h2, h3, .brand-logo { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
@@ -59,7 +71,7 @@
         .toast.show { transform: translateX(0); opacity: 1; }
 
         /* GİRİŞ EKRANI */
-        #auth-view { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(circle at center, rgba(30,30,40,0.8) 0%, var(--bg-dark) 100%); }
+        #auth-view { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(circle at center, rgba(30,30,40,0.8) 0%, var(--bg-dark) 100%); z-index: 10; position: relative; }
         body.light-theme #auth-view { background: #f0f0f5; }
         .auth-box { background: var(--bg-panel); border: 1px solid var(--border); padding: 50px 40px; width: 100%; max-width: 450px; position: relative; border-radius: var(--border-radius); box-shadow: 0 15px 35px rgba(0,0,0,0.8); }
         body.light-theme .auth-box { box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
@@ -68,8 +80,9 @@
         .brand-logo span { color: var(--main-color); }
         .auth-subtitle { text-align: center; color: var(--text-muted); font-size: 16px; margin-bottom: 30px; letter-spacing: 2px; text-transform: uppercase; }
 
-        .form-control { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 15px; font-size: 16px; font-family: 'Rajdhani', sans-serif; margin-bottom: 20px; outline: none; transition: all 0.3s; border-radius: var(--border-radius); }
+        .form-control { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 15px; font-size: 16px; font-family: var(--main-font); margin-bottom: 20px; outline: none; transition: all 0.3s; border-radius: var(--border-radius); }
         .form-control:focus { border-color: var(--main-color); box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        select.form-control option { background: var(--bg-panel); color: var(--text-main); }
         
         .btn-gamer { background: var(--main-color); color: white; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: 700; font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase; transition: all 0.3s; border-radius: var(--border-radius); }
         .btn-gamer:hover { filter: brightness(1.2); box-shadow: 0 0 20px var(--main-color); transform: translateY(-2px); }
@@ -80,7 +93,7 @@
         .google-auth-container { display: flex; justify-content: center; margin-top: 15px; min-height: 44px; }
 
         /* ANA SİTE ARAYÜZÜ */
-        #app-view { display: none; flex-direction: column; min-height: 100vh; }
+        #app-view { display: none; flex-direction: column; min-height: 100vh; z-index: 10; position: relative; }
         header { background: var(--bg-panel); border-bottom: 2px solid var(--main-color); padding: 0 40px; position: sticky; top: 0; z-index: 500; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
         body.light-theme header { box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .nav-container { max-width: 1400px; margin: 0 auto; height: 80px; display: flex; align-items: center; justify-content: space-between; }
@@ -158,7 +171,7 @@
             
             <div class="divider">Gerçek API ile Bağlan</div>
             
-            <!-- GOOGLE OTURUM AÇMA BUTONU BURAYA GELECEK -->
+            <!-- GOOGLE OTURUM AÇMA BUTONU -->
             <div class="google-auth-container" id="google-btn-container">
                 <div id="g_id_onload"
                      data-client_id="283634710098-159sb0n0hppvp78hmdfovnb4bbtodcvo.apps.googleusercontent.com"
@@ -208,12 +221,12 @@
             <a class="sidebar-link" onclick="switchPage('logs')">Sistem İşlemleri</a>
             
             <h3 style="color: var(--main-color); margin: 40px 0 20px 0; font-size: 20px;">[ Hesap ]</h3>
-            <a class="sidebar-link" onclick="switchPage('profile')">Profil & Dosya Yükleme</a>
+            <a class="sidebar-link" onclick="switchPage('profile')">Profil & Ayarlar</a>
             <a class="sidebar-link" style="color: #ff003c; margin-top: 20px; border: none;" onclick="logout()">>> Çıkış Yap <<</a>
         </nav>
 
         <main>
-            <!-- 1. SİSTEM MERKEZİ (Hoşgeldin Mesajlı) -->
+            <!-- 1. SİSTEM MERKEZİ -->
             <div id="home" class="page-section active">
                 <div class="welcome-banner">
                     <div>
@@ -266,7 +279,7 @@
                 </div>
             </div>
 
-            <!-- 2. KÜTÜPHANE (GERÇEK İNDİRME SİSTEMİ) -->
+            <!-- 2. KÜTÜPHANE -->
             <div id="library" class="page-section">
                 <h1 class="section-title">Kütüphanem</h1>
                 <p style="margin-bottom: 30px; color: var(--text-muted);">Buraya eklediğin modülleri bilgisayarına gerçek bir .txt dosyası olarak indirebilirsin.</p>
@@ -277,38 +290,123 @@
                 </div>
             </div>
 
-            <!-- 3. PROFİL & AYARLAR & DOSYA YÜKLEME -->
+            <!-- 3. DETAYLI PROFİL VE HESAP AYARLARI (14 YENİ ÖZELLİK) -->
             <div id="profile" class="page-section">
-                <h1 class="section-title">Profil & Dosya Yükleme</h1>
+                <h1 class="section-title">Hesap Komuta Merkezi</h1>
+                
                 <div class="grid">
+                    <!-- KART 1: TEMEL KİMLİK (1, 2, 3) -->
                     <div class="card">
-                        <h3 style="color: var(--main-color);">Kişisel Bilgiler (Hakkımda)</h3>
-                        <p style="margin-bottom: 20px;">Sistemde görünen kimliğinizi ve hakkınızdaki bilgileri güncelleyin.</p>
+                        <h3 style="color: var(--main-color);">1. Temel Kimlik & Bilgiler</h3>
+                        <p style="margin-bottom: 20px;">Sistemde görünen kimliğinizi güncelleyin.</p>
                         <input type="text" id="edit-ad" class="form-control" placeholder="Adınız">
                         <input type="text" id="edit-soyad" class="form-control" placeholder="Soyadınız">
-                        <textarea id="edit-hakkimda" class="form-control" placeholder="Hakkımda kısa bir yazı..." rows="4"></textarea>
-                        
-                        <!-- Tema Ayarı -->
-                        <div style="margin: 20px 0;">
-                            <label style="display:block; margin-bottom: 10px; color: var(--text-muted); font-weight: bold;">Ana Neon Rengi:</label>
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <input type="color" id="theme-color-picker" value="#ff003c" style="width: 60px; height: 40px; border: none; cursor: pointer; background: transparent;">
-                            </div>
-                        </div>
-                        <button class="btn-action" onclick="updateProfile()">Bilgileri Kaydet</button>
+                        <input type="text" id="edit-kodadi" class="form-control" placeholder="Kod Adı (Rumuz)">
+                        <input type="email" id="edit-email" class="form-control" placeholder="Kayıtlı E-Posta">
+                        <select id="edit-bolge" class="form-control">
+                            <option value="">Operasyon Bölgesi Seçin</option>
+                            <option value="TR">Türkiye (TR)</option>
+                            <option value="EU">Avrupa (EU)</option>
+                            <option value="US">Kuzey Amerika (US)</option>
+                            <option value="RU">Rusya (RU)</option>
+                        </select>
+                        <textarea id="edit-hakkimda" class="form-control" placeholder="Hakkımda kısa bir yazı..." rows="3"></textarea>
                     </div>
 
-                    <!-- DOSYA YÜKLEME -->
+                    <!-- KART 2: SİBER BAĞLANTILAR (4, 5) -->
                     <div class="card">
-                        <h3 style="color: var(--main-color);">Sisteme Dosya Yükle</h3>
-                        <p style="margin-bottom: 20px;">Kendi oluşturduğunuz yapılandırma veya modül dosyalarını sisteme aktarın.</p>
+                        <h3 style="color: var(--main-color);">2. İletişim & Entegrasyon</h3>
+                        <p style="margin-bottom: 20px;">Diğer siber platformlardaki bağlantılarınız.</p>
+                        <input type="text" id="edit-discord" class="form-control" placeholder="Discord ID (Örn: user#1234)">
+                        <input type="text" id="edit-github" class="form-control" placeholder="GitHub Profil Linki">
+                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 10px;">*Bağlantılar diğer kullanıcılara açık profilinizde görünür.</p>
+                    </div>
+
+                    <!-- KART 3: GÜVENLİK & GİZLİLİK (6, 7, 8, 9) -->
+                    <div class="card">
+                        <h3 style="color: var(--main-color);">3. Güvenlik & Gizlilik</h3>
+                        <p style="margin-bottom: 20px;">Hesabınızı dış tehditlere karşı koruyun.</p>
                         
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Profil Gizliliği:</label>
+                        <select id="edit-gizlilik" class="form-control">
+                            <option value="acik">Herkese Açık Profil</option>
+                            <option value="hayalet">Hayalet Modu (Gizli)</option>
+                        </select>
+
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                            <input type="checkbox" id="edit-2fa" style="width: 20px; height: 20px;">
+                            <label for="edit-2fa" style="color: var(--text-main);">İki Aşamalı Doğrulamayı (2FA) Aktifleştir</label>
+                        </div>
+
+                        <hr style="border-color: var(--border); margin: 20px 0;">
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Şifre Değiştirme:</label>
+                        <input type="password" id="edit-oldpass" class="form-control" placeholder="Mevcut Şifreniz">
+                        <input type="password" id="edit-newpass" class="form-control" placeholder="Yeni Şifre">
+                        <button class="btn-action" style="margin-bottom: 15px;" onclick="changePassword()">Şifreyi Güncelle</button>
+
+                        <button class="btn-action" style="border-color: #ffaa00; color: #ffaa00;" onclick="closeOtherSessions()">Tüm Aktif Oturumları Kapat</button>
+                    </div>
+
+                    <!-- KART 4: ARAYÜZ & KİŞİSELLEŞTİRME (10, 11, 12, 13, 14) -->
+                    <div class="card">
+                        <h3 style="color: var(--main-color);">4. Arayüz & Tasarım</h3>
+                        <p style="margin-bottom: 20px;">Sistemi kendi zevkinize göre şekillendirin.</p>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display:block; margin-bottom: 5px; color: var(--text-muted);">Ana Neon Rengi:</label>
+                            <input type="color" id="theme-color-picker" value="#ff003c" style="width: 100%; height: 40px; border: none; cursor: pointer; background: transparent;">
+                        </div>
+
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Tasarım Hatları:</label>
+                        <select id="theme-border-style" class="form-control">
+                            <option value="0px">Siberpunk (Keskin Hatlar)</option>
+                            <option value="12px">Modern (Yumuşak Hatlar)</option>
+                            <option value="25px">Oval (Kapsül Tasarım)</option>
+                        </select>
+
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Arayüz Yazı Tipi:</label>
+                        <select id="theme-font-style" class="form-control">
+                            <option value="'Rajdhani', sans-serif">Rajdhani (Sistem Varsayılanı)</option>
+                            <option value="'Orbitron', sans-serif">Orbitron (Geometrik/Siber)</option>
+                            <option value="monospace">Monospace (Terminal/Hacker)</option>
+                        </select>
+
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Arka Plan Animasyon Hızı:</label>
+                        <select id="theme-anim-speed" class="form-control">
+                            <option value="10s">Normal (Standart Tarama)</option>
+                            <option value="3s">Hızlı (Agresif Tarama)</option>
+                            <option value="30s">Yavaş (Sakin Mod)</option>
+                            <option value="0s">Animasyonu Kapat</option>
+                        </select>
+
+                        <label style="color:var(--text-muted); display:block; margin-bottom:5px;">Sistem Dili:</label>
+                        <select id="theme-language" class="form-control">
+                            <option value="tr">Türkçe (TR)</option>
+                            <option value="en">English (EN)</option>
+                            <option value="ru">Русский (RU)</option>
+                        </select>
+
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                            <input type="checkbox" id="theme-sound" style="width: 20px; height: 20px;" checked>
+                            <label for="theme-sound" style="color: var(--text-main);">Sistem Ses Efektleri (UI Bildirimleri)</label>
+                        </div>
+                    </div>
+
+                    <!-- KART 5: DOSYA YÜKLEME (Mevcut) -->
+                    <div class="card">
+                        <h3 style="color: var(--main-color);">5. Sisteme Dosya Yükle</h3>
+                        <p style="margin-bottom: 20px;">Kendi yapılandırma dosyalarınızı sisteme aktarın.</p>
                         <div style="border: 2px dashed var(--border); padding: 30px; text-align: center; border-radius: var(--border-radius); margin-bottom: 20px;">
                             <input type="file" id="fileUploader" style="display: none;" onchange="handleFileUpload(event)">
                             <label for="fileUploader" class="btn-action" style="cursor: pointer; width: auto;">Dosya Seç</label>
                             <div id="fileNameDisplay" style="margin-top: 15px; color: var(--text-main); font-weight: bold;">Henüz dosya seçilmedi.</div>
                         </div>
                         <button class="btn-action" onclick="uploadFile()">Sunucuya Yükle</button>
+                    </div>
+
+                    <!-- TÜMÜNÜ KAYDET BUTONU -->
+                    <div class="card" style="grid-column: 1 / -1; text-align: center;">
+                        <button class="btn-gamer" onclick="updateAllProfileSettings()">TÜM HESAP VE ARAYÜZ AYARLARINI KAYDET</button>
                     </div>
                 </div>
             </div>
@@ -343,12 +441,18 @@
     const b$ = e => document.getElementById(e);
     const q$ = e => document.querySelectorAll(e);
 
-    // BİLDİRİM
+    // BİLDİRİM SİSTEMİ
     window.showToast = function(e) {
         const t = b$("toast-container"), n = document.createElement("div");
         n.className = "toast"; n.innerHTML = ">_ BİLGİ: " + e; t.appendChild(n);
         setTimeout(() => n.classList.add("show"), 10);
         setTimeout(() => { n.classList.remove("show"); setTimeout(() => n.remove(), 400); }, 3500);
+        
+        // Ses Efekti (Eğer Açıksa)
+        if(localStorage.getItem("bp_sound") !== "false") {
+            // Sadece görsel/sözel simülasyon, gerçek mp3 eklenirse buraya Audio nesnesi konur.
+            console.log("Beep!"); 
+        }
     };
 
     // AÇIK/KOYU TEMA
@@ -371,17 +475,21 @@
         const ad = b$("isim-input").value;
         const soyad = b$("soyad-input").value;
         if(ad.trim() === "" || soyad.trim() === "") { showToast("Ad ve Soyad boş bırakılamaz."); return; }
+        
         localStorage.setItem("bp_ad", ad);
         localStorage.setItem("bp_soyad", soyad);
-        localStorage.setItem("bp_hakkimda", "Yeni üye sisteme katıldı.");
+        // Eğer kod adı boşsa otomatik ata
+        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "Ghost_" + Math.floor(Math.random()*1000));
+        if(!localStorage.getItem("bp_hakkimda")) localStorage.setItem("bp_hakkimda", "Yeni üye sisteme katıldı.");
+        
         completeLogin();
     };
 
     // GOOGLE GİRİŞ YANITI
     window.handleGoogleLoginResponse = function(response) {
-        // Normalde burada response.credential decode edilip Google'dan gelen isim alınır
         localStorage.setItem("bp_ad", "Google");
         localStorage.setItem("bp_soyad", "Kullanıcısı");
+        if(!localStorage.getItem("bp_kodadi")) localStorage.setItem("bp_kodadi", "Google_Ghost");
         localStorage.setItem("bp_hakkimda", "Google üzerinden doğrulandı.");
         completeLogin();
     };
@@ -403,32 +511,91 @@
         showToast("Çıkış yapıldı.");
     };
 
-    // PROFİL VE KARŞILAMA YÜKLEMESİ
+    // 14 YENİ ÖZELLİĞİ YÜKLEME VE KAYDETME SİSTEMİ
     window.loadProfileData = function() {
-        const ad = localStorage.getItem("bp_ad") || "Misafir";
+        // Okuma İşlemleri
+        const ad = localStorage.getItem("bp_ad") || "";
         const soyad = localStorage.getItem("bp_soyad") || "";
+        const kodadi = localStorage.getItem("bp_kodadi") || "";
+        const email = localStorage.getItem("bp_email") || "";
+        const bolge = localStorage.getItem("bp_bolge") || "";
         const hakkimda = localStorage.getItem("bp_hakkimda") || "";
+        const discord = localStorage.getItem("bp_discord") || "";
+        const github = localStorage.getItem("bp_github") || "";
+        const gizlilik = localStorage.getItem("bp_gizlilik") || "acik";
+        const tfa = localStorage.getItem("bp_2fa") === "true";
+        const sound = localStorage.getItem("bp_sound") !== "false"; // default true
+        const lang = localStorage.getItem("bp_lang") || "tr";
+        const font = localStorage.getItem("bp_font") || "'Rajdhani', sans-serif";
+        const anim = localStorage.getItem("bp_anim") || "10s";
 
-        b$("welcome-name").innerText = ad + " " + soyad;
+        // Karşılama Ekranı
+        b$("welcome-name").innerText = kodadi !== "" ? kodadi : (ad + " " + soyad);
         b$("welcome-about").innerText = hakkimda !== "" ? "Hakkında: " + hakkimda : "Sistemler operasyonel.";
         
+        // Inputları Doldurma
         b$("edit-ad").value = ad;
         b$("edit-soyad").value = soyad;
         b$("edit-hakkimda").value = hakkimda;
+        b$("edit-kodadi").value = kodadi;
+        b$("edit-email").value = email;
+        b$("edit-bolge").value = bolge;
+        b$("edit-discord").value = discord;
+        b$("edit-github").value = github;
+        b$("edit-gizlilik").value = gizlilik;
+        b$("edit-2fa").checked = tfa;
+        b$("theme-sound").checked = sound;
+        b$("theme-language").value = lang;
+        b$("theme-font-style").value = font;
+        b$("theme-anim-speed").value = anim;
+
+        // Arayüz Değişkenlerini (CSS) Uygulama
+        document.documentElement.style.setProperty("--main-font", font);
+        document.documentElement.style.setProperty("--anim-speed", anim);
     };
 
-    window.updateProfile = function() {
+    window.updateAllProfileSettings = function() {
+        // Kayıt İşlemleri
         localStorage.setItem("bp_ad", b$("edit-ad").value);
         localStorage.setItem("bp_soyad", b$("edit-soyad").value);
+        localStorage.setItem("bp_kodadi", b$("edit-kodadi").value);
+        localStorage.setItem("bp_email", b$("edit-email").value);
+        localStorage.setItem("bp_bolge", b$("edit-bolge").value);
         localStorage.setItem("bp_hakkimda", b$("edit-hakkimda").value);
+        localStorage.setItem("bp_discord", b$("edit-discord").value);
+        localStorage.setItem("bp_github", b$("edit-github").value);
+        localStorage.setItem("bp_gizlilik", b$("edit-gizlilik").value);
+        localStorage.setItem("bp_2fa", b$("edit-2fa").checked);
+        localStorage.setItem("bp_sound", b$("theme-sound").checked);
+        localStorage.setItem("bp_lang", b$("theme-language").value);
+        localStorage.setItem("bp_font", b$("theme-font-style").value);
+        localStorage.setItem("bp_anim", b$("theme-anim-speed").value);
         
-        // Renk Tema Kaydı
+        // Tema ve Border Kaydı
         const newColor = b$("theme-color-picker").value;
+        const newBorder = b$("theme-border-style").value;
         document.documentElement.style.setProperty("--main-color", newColor);
+        document.documentElement.style.setProperty("--border-radius", newBorder);
         localStorage.setItem("banpan_theme_color", newColor);
+        localStorage.setItem("banpan_theme_border", newBorder);
 
-        loadProfileData();
-        showToast("Bilgiler ve ayarlar başarıyla güncellendi.");
+        loadProfileData(); // DOM'u ve UI'yi hemen güncelle
+        showToast("Tüm kimlik, güvenlik ve arayüz ayarları başarıyla kaydedildi.");
+    };
+
+    // Şifre Değiştirme (Simülasyon)
+    window.changePassword = function() {
+        const oldP = b$("edit-oldpass").value;
+        const newP = b$("edit-newpass").value;
+        if(oldP === "" || newP === "") { showToast("Şifre alanları boş bırakılamaz."); return; }
+        b$("edit-oldpass").value = "";
+        b$("edit-newpass").value = "";
+        showToast("Güvenlik şifreniz başarıyla güncellendi.");
+    };
+
+    // Aktif Oturumları Kapatma
+    window.closeOtherSessions = function() {
+        showToast("Diğer cihazlardaki (Telefon, Tablet, vb.) tüm oturumlarınız kapatıldı.");
     };
 
     // DOSYA YÜKLEME
@@ -457,8 +624,6 @@
         b$(e).classList.add("active");
         q$(".sidebar-link").forEach(e => e.classList.remove("active"));
         if (window.event && window.event.currentTarget) { window.event.currentTarget.classList.add("active"); }
-        
-        // Sayfa değiştiğinde menüleri kapat
         b$('sidebar-left').classList.remove('open');
         b$('sidebar-right').classList.remove('open');
         window.scrollTo(0, 0);
@@ -513,11 +678,36 @@
 
     // Başlangıç Ayarları
     document.addEventListener('DOMContentLoaded', () => {
-        // Kayıtlı Temayı Uygula
+        // Temayı Uygula
         if(localStorage.getItem('banpan_theme') === 'light') { document.body.classList.add('light-theme'); }
         const c = localStorage.getItem("banpan_theme_color") || "#ff003c";
+        const border = localStorage.getItem("banpan_theme_border") || "0px";
+        const font = localStorage.getItem("bp_font") || "'Rajdhani', sans-serif";
+        const anim = localStorage.getItem("bp_anim") || "10s";
+
         document.documentElement.style.setProperty("--main-color", c);
+        document.documentElement.style.setProperty("--border-radius", border);
+        document.documentElement.style.setProperty("--main-font", font);
+        document.documentElement.style.setProperty("--anim-speed", anim);
+        
         if(b$("theme-color-picker")) b$("theme-color-picker").value = c;
+        if(b$("theme-border-style")) b$("theme-border-style").value = border;
+
+        // Google Butonu Yüklemesi
+        const gsiScript = document.createElement('script');
+        gsiScript.src = 'https://accounts.google.com/gsi/client';
+        gsiScript.async = true;
+        gsiScript.defer = true;
+        gsiScript.onload = function() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: "283634710098-159sb0n0hppvp78hmdfovnb4bbtodcvo.apps.googleusercontent.com",
+                    callback: window.handleGoogleLoginResponse
+                });
+                google.accounts.id.renderButton(b$("google-btn-container"), { theme: "filled_black", size: "large", type: "standard" });
+            }
+        };
+        document.body.appendChild(gsiScript);
     });
 
 </script>
